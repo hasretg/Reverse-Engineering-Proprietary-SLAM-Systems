@@ -6,11 +6,26 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-<fragment
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:id="@+id/arFragment"
-    android:name="com.google.ar.sceneform.ux.ArFragment"
-    />
+    <fragment
+        android:id="@+id/arFragment"
+        android:name="com.google.ar.sceneform.ux.ArFragment"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <android.support.v7.widget.AppCompatButton
+        android:id="@+id/myButton"
+        android:layout_width="400px"
+        android:layout_height="150px"
+        android:layout_marginBottom="103dp"
+        android:text="START"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_editor_absoluteX="340px"
+        app:layout_editor_absoluteY="1500px" />
 
 </android.support.constraint.ConstraintLayout>
