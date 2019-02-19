@@ -1,11 +1,14 @@
 package com.example.reverse_engineering_proprietary_slam_systems;
 
 import android.content.Context;
+import android.os.Environment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.google.ar.core.Anchor;
 import com.google.ar.sceneform.AnchorNode;
@@ -20,6 +23,7 @@ import com.google.ar.core.*;
 import com.google.ar.sceneform.ux.BaseArFragment;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -30,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     long startTime;
-    File file = new File("demo222.txt");
+    String fileName = "cameraLoc.txt";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
                     });
         });
 
+        /* Start when button is clicked */
         myButton.setOnClickListener(v -> {
             Vector3 currCameraPose = arFragment.getArSceneView().getScene().getCamera().getWorldPosition();
             long currTime= System.currentTimeMillis() - startTime;
@@ -67,14 +72,37 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void writeToFile(String data) {
-        try {
-            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(new FileOutputStream(file));
-            outputStreamWriter.write(data);
-            outputStreamWriter.close();
 
+        // Create file
+        File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath(), fileName);
+
+        // Write data to external storage
+        if (isExternalStorageWritable()){
+            try {
+                FileOutputStream fos = new FileOutputStream(file);
+                fos.write(data.getBytes());
+                fos.close();
+                Toast.makeText(this, "File saved" ,Toast.LENGTH_SHORT).show();
+            }
+            catch (FileNotFoundException e) {
+                e.printStackTrace();
+                Toast.makeText(this, "File not found" ,Toast.LENGTH_SHORT).show();
+            }
+            catch (IOException e){
+                e.printStackTrace();
+                Toast.makeText(this, "Error saving" ,Toast.LENGTH_SHORT).show();
+            }
+        } else{
+            Log.e("StorageException", "External storage not available to store data!!");
         }
-        catch (IOException e) {
-            Log.e("Exception", "File write failed: " + e.toString());
+    }
+
+    /* Checks if external storage is available for read and write */
+    public boolean isExternalStorageWritable(){
+        String state = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(state)) {
+            return true;
         }
+        return false;
     }
 }
