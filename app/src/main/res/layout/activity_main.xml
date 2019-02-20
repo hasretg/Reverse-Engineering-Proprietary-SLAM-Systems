@@ -17,11 +17,11 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <android.support.v7.widget.AppCompatButton
-        android:id="@+id/myStartButton"
+        android:id="@+id/recButton"
         android:layout_width="400px"
         android:layout_height="150px"
         android:layout_marginBottom="103dp"
-        android:text="Save position"
+        android:text="Recording Start"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

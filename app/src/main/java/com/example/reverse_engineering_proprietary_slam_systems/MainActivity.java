@@ -1,8 +1,10 @@
 package com.example.reverse_engineering_proprietary_slam_systems;
 
-import android.content.Context;
+import android.content.ContentValues;
+import android.media.CamcorderProfile;
 import android.os.Environment;
-import android.support.v7.app.AlertDialog;
+
+import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,23 +14,16 @@ import android.widget.Toast;
 
 import com.google.ar.core.Anchor;
 import com.google.ar.sceneform.AnchorNode;
-import com.google.ar.sceneform.FrameTime;
 import com.google.ar.sceneform.math.Vector3;
 import com.google.ar.sceneform.rendering.Color;
 import com.google.ar.sceneform.rendering.MaterialFactory;
 import com.google.ar.sceneform.rendering.ModelRenderable;
 import com.google.ar.sceneform.rendering.ShapeFactory;
 import com.google.ar.sceneform.ux.ArFragment;
-import com.google.ar.core.*;
-import com.google.ar.sceneform.ux.BaseArFragment;
 
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.sql.Time;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -37,6 +32,11 @@ public class MainActivity extends AppCompatActivity {
     protected long startTime;
     protected static String TEXT_FILE_NAME = "cameraLoc.txt";
     OutputStreamWriter myStreamWriter;
+    String tStep = "";
+    public ArFragment arFragment;
+    public Button recordButton;
+    public Button myStopButton;
+    private VideoRecorder videoRecorder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,10 +44,19 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         /* Defining elements from the UI */
-        ArFragment arFragment = (ArFragment) getSupportFragmentManager()
+        arFragment = (ArFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.arFragment);
-        Button myStartButton = findViewById(R.id.myStartButton);
-        Button myStopButton = findViewById(R.id.myStopButton);
+        recordButton = findViewById(R.id.recButton);
+        myStopButton = findViewById(R.id.myStopButton);
+
+        // Initialize the VideoRecorder.
+        videoRecorder = new VideoRecorder();
+        int orientation = getResources().getConfiguration().orientation;
+        videoRecorder.setVideoQuality(CamcorderProfile.QUALITY_2160P, orientation);
+        videoRecorder.setSceneView(arFragment.getArSceneView());
+
+        recordButton.setOnClickListener(this::toggleRecording);
+        recordButton.setEnabled(true);
 
         /* Creating a text-file to save camera pose with the timestamps from the AR application
         * Path of the file: data/data/com.example.reverse_eng../files/textFile
@@ -78,23 +87,56 @@ public class MainActivity extends AppCompatActivity {
                     });
         });
 
+
         /* OnClickListener: Write pose and timestamp in a txt-file */
-        myStartButton.setOnClickListener(v -> {
-            Vector3 currCameraPose = arFragment.getArSceneView().getScene().getCamera()
-                    .getWorldPosition();
-            long currTime= System.currentTimeMillis() - startTime;
-            String dataToStore = "" + currTime + ":  " + currCameraPose.toString() + "\n";
-            writeToFile(dataToStore, myStreamWriter);
-        });
+        //recordButton.setOnClickListener(v -> {
+
+
+       // });
+
 
         /* Save txt-file when StopButton is clicked */
         myStopButton.setOnClickListener(v -> {
+            Log.v("test1", "Timestamp: " + tStep );
+/*
             try{
                 myStreamWriter.close();
             }catch(Throwable t){
                 Log.w("StreamWriterWarning", "Text file could not be stored.");
             }
+            */
         });
+
+        arFragment.getArSceneView().getScene().addOnUpdateListener(frameTime -> {
+
+            Vector3 currCameraPose = arFragment.getArSceneView().getScene().getCamera()
+                    .getWorldPosition();
+            long currTime= System.currentTimeMillis() - startTime;
+            String dataToStore = "" + currTime + ":  " + currCameraPose.toString() + "\n";
+            //writeToFile(dataToStore, myStreamWriter);
+            tStep += ""+frameTime.getDeltaSeconds()+"  Pos: "+currCameraPose.toString()+"\n";
+        });
+    }
+
+    /*
+     * Used as a handler for onClick, so the signature must match onClickListener.
+     */
+    private void toggleRecording(View unusedView) {
+
+        boolean recording = videoRecorder.onToggleRecord();
+        if (recording) {
+        } else {
+            String videoPath = videoRecorder.getVideoPath().getAbsolutePath();
+            Toast.makeText(this, "Video saved: " + videoPath, Toast.LENGTH_SHORT).show();
+            Log.d("Video status", "Video saved: " + videoPath);
+
+            // Send  notification of updated content.
+            ContentValues values = new ContentValues();
+            values.put(MediaStore.Video.Media.TITLE, "Sceneform Video");
+            values.put(MediaStore.Video.Media.MIME_TYPE, "video/mp4");
+            values.put(MediaStore.Video.Media.DATA, videoPath);
+            getContentResolver().insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values);
+        }
     }
 
     /* Write a string in a given file */
