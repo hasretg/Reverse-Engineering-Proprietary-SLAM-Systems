@@ -33,36 +33,44 @@ import java.sql.Time;
 
 public class MainActivity extends AppCompatActivity {
 
-
-    long startTime;
-    String fileName = "cameraLoc.txt";
-    OutputStreamWriter streamWriter;
+    /* Define global variables */
+    protected long startTime;
+    protected static String TEXT_FILE_NAME = "cameraLoc.txt";
+    OutputStreamWriter myStreamWriter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        startTime= System.currentTimeMillis();
 
-        ArFragment arFragment = (ArFragment) getSupportFragmentManager().findFragmentById(R.id.arFragment);
-        Button myButton = findViewById(R.id.myButton);
+        /* Defining elements from the UI */
+        ArFragment arFragment = (ArFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.arFragment);
+        Button myStartButton = findViewById(R.id.myStartButton);
         Button myStopButton = findViewById(R.id.myStopButton);
 
-
+        /* Creating a text-file to save camera pose with the timestamps from the AR application
+        * Path of the file: data/data/com.example.reverse_eng../files/textFile
+        */
         try{
-            streamWriter = new OutputStreamWriter(openFileOutput(fileName, 0));
+            myStreamWriter = new OutputStreamWriter(openFileOutput(TEXT_FILE_NAME, 0));
+
         }catch(Throwable t){
             Log.e("OutputStreamWriterException", "OutputStreamWriter not possible.");
         }
 
+        /* Store timestamp when application is executed as start time */
+        startTime= System.currentTimeMillis();
 
-
+        /* TapArPlaneListener: When plane in AR recognized and taped, create a sphere at the taped 
+        * location */
         arFragment.setOnTapArPlaneListener((hitResult, plane, motionEvent) -> {
             Anchor anchor = hitResult.createAnchor();
 
             MaterialFactory.makeOpaqueWithColor(this, new Color(android.graphics.Color.RED))
                     .thenAccept(material -> {
-                        ModelRenderable renderable = ShapeFactory.makeSphere(0.1f, new Vector3(0f, 0f, 0f), material);
+                        ModelRenderable renderable = ShapeFactory.makeSphere(0.1f, 
+                                new Vector3(0f, 0f, 0f), material);
 
                         AnchorNode anchorNode = new AnchorNode(anchor);
                         anchorNode.setRenderable(renderable);
@@ -70,37 +78,30 @@ public class MainActivity extends AppCompatActivity {
                     });
         });
 
-        /* Start when button is clicked */
-        myButton.setOnClickListener(v -> {
-            Vector3 currCameraPose = arFragment.getArSceneView().getScene().getCamera().getWorldPosition();
+        /* OnClickListener: Write pose and timestamp in a txt-file */
+        myStartButton.setOnClickListener(v -> {
+            Vector3 currCameraPose = arFragment.getArSceneView().getScene().getCamera()
+                    .getWorldPosition();
             long currTime= System.currentTimeMillis() - startTime;
-            Log.v("Time Class ", " Time value when clicking button: " + currTime);
-            Log.v("pose ", "global coordinates when clicking button: " + currCameraPose.toString());
             String dataToStore = "" + currTime + ":  " + currCameraPose.toString() + "\n";
-            writeToFile(dataToStore, streamWriter);
+            writeToFile(dataToStore, myStreamWriter);
         });
 
-        /* Start when StopButton is clicked */
+        /* Save txt-file when StopButton is clicked */
         myStopButton.setOnClickListener(v -> {
             try{
-                streamWriter.close();
+                myStreamWriter.close();
             }catch(Throwable t){
-
+                Log.w("StreamWriterWarning", "Text file could not be stored.");
             }
         });
     }
 
+    /* Write a string in a given file */
     private void writeToFile(String data, OutputStreamWriter streamWriter) {
-
-        // Write data to external storage
         if (isExternalStorageWritable()){
             try {
-                // Path of the file: data/data/com.example.reverse_engineering_proprietary_slam_systems/files/textFile
-
-                String outpt = MainActivity.this.getFilesDir().getAbsolutePath();
                 streamWriter.write(data);
-                //streamWriter.close();
-                Log.v("Storage path", "External storage path: " + outpt);
 
                 Toast.makeText(this, "File saved" ,Toast.LENGTH_SHORT).show();
             }

@@ -17,7 +17,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <android.support.v7.widget.AppCompatButton
-        android:id="@+id/myButton"
+        android:id="@+id/myStartButton"
         android:layout_width="400px"
         android:layout_height="150px"
         android:layout_marginBottom="103dp"
