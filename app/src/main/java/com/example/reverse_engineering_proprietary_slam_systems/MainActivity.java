@@ -26,6 +26,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.sql.Time;
 
@@ -35,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
 
     long startTime;
     String fileName = "cameraLoc.txt";
+    OutputStreamWriter streamWriter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +46,14 @@ public class MainActivity extends AppCompatActivity {
 
         ArFragment arFragment = (ArFragment) getSupportFragmentManager().findFragmentById(R.id.arFragment);
         Button myButton = findViewById(R.id.myButton);
+        Button myStopButton = findViewById(R.id.myStopButton);
+
+
+        try{
+            streamWriter = new OutputStreamWriter(openFileOutput(fileName, 0));
+        }catch(Throwable t){
+            Log.e("OutputStreamWriterException", "OutputStreamWriter not possible.");
+        }
 
 
 
@@ -66,22 +76,32 @@ public class MainActivity extends AppCompatActivity {
             long currTime= System.currentTimeMillis() - startTime;
             Log.v("Time Class ", " Time value when clicking button: " + currTime);
             Log.v("pose ", "global coordinates when clicking button: " + currCameraPose.toString());
-            String dataToStore = "" + currTime + ":  " + currCameraPose.toString();
-            writeToFile(dataToStore);
+            String dataToStore = "" + currTime + ":  " + currCameraPose.toString() + "\n";
+            writeToFile(dataToStore, streamWriter);
+        });
+
+        /* Start when StopButton is clicked */
+        myStopButton.setOnClickListener(v -> {
+            try{
+                streamWriter.close();
+            }catch(Throwable t){
+
+            }
         });
     }
 
-    private void writeToFile(String data) {
-
-        // Create file
-        File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath(), fileName);
+    private void writeToFile(String data, OutputStreamWriter streamWriter) {
 
         // Write data to external storage
         if (isExternalStorageWritable()){
             try {
-                FileOutputStream fos = new FileOutputStream(file);
-                fos.write(data.getBytes());
-                fos.close();
+                // Path of the file: data/data/com.example.reverse_engineering_proprietary_slam_systems/files/textFile
+
+                String outpt = MainActivity.this.getFilesDir().getAbsolutePath();
+                streamWriter.write(data);
+                //streamWriter.close();
+                Log.v("Storage path", "External storage path: " + outpt);
+
                 Toast.makeText(this, "File saved" ,Toast.LENGTH_SHORT).show();
             }
             catch (FileNotFoundException e) {
@@ -91,6 +111,9 @@ public class MainActivity extends AppCompatActivity {
             catch (IOException e){
                 e.printStackTrace();
                 Toast.makeText(this, "Error saving" ,Toast.LENGTH_SHORT).show();
+            }
+            catch(Throwable t) {
+                Toast.makeText(this, "Exception: "+t.toString(), Toast.LENGTH_LONG).show();
             }
         } else{
             Log.e("StorageException", "External storage not available to store data!!");
