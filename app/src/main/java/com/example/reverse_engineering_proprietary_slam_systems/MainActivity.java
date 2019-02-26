@@ -1,10 +1,13 @@
 package com.example.reverse_engineering_proprietary_slam_systems;
 
+import android.Manifest;
 import android.content.ContentValues;
+import android.content.pm.PackageManager;
 import android.media.CamcorderProfile;
 import android.os.Environment;
 
 import android.provider.MediaStore;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -20,7 +23,9 @@ import com.google.ar.sceneform.rendering.ModelRenderable;
 import com.google.ar.sceneform.rendering.ShapeFactory;
 import com.google.ar.sceneform.ux.ArFragment;
 
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.Calendar;
@@ -29,9 +34,14 @@ import java.util.Calendar;
 public class MainActivity extends AppCompatActivity {
 
     /* Define global variables */
-    private static String TEXT_FILE_NAME = "arCameraPose.txt";
+    private static final String TAG = "SLAM_thesis";
+    private static String TEXT_FILE_NAME = "arCameraPose";
+    private static String PATH_POSEDIR = Environment.getExternalStorageDirectory()
+            + File.separator + "PoseDir";
+    private File folderPose;
     private String arCameraPoseText = "";
-    protected OutputStreamWriter myStreamWriter;
+    protected OutputStreamWriter myOutputStreamWriter;
+    protected FileOutputStream myFileOutputStream;
     private long startTime;
     private ArFragment arFragment;
     private Button recordButton;
@@ -39,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
     private Button poseCaptureButton;
     private boolean captBtnClicked = false;
     private VideoRecorder videoRecorder;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,10 +67,19 @@ public class MainActivity extends AppCompatActivity {
         int orientation = getResources().getConfiguration().orientation;
         videoRecorder.setVideoQuality(CamcorderProfile.QUALITY_1080P, orientation);
         videoRecorder.setSceneView(arFragment.getArSceneView());
-        videoRecorder.setFrameRate(5);
+        //videoRecorder.setFrameRate(5);
 
         // Store timestamp when application is executed as start time
         startTime = System.currentTimeMillis();
+
+        // Check for the permissions
+        this.isStoragePermissionGranted();
+        this.isCameraPermissionGranted();
+
+        // Make sure the path directory exists.
+        folderPose = new File(PATH_POSEDIR);
+        if(!folderPose.exists())
+            folderPose.mkdirs();
 
         /*
          * When plane in AR recognized and taped, create a sphere at the taped location
@@ -103,19 +123,25 @@ public class MainActivity extends AppCompatActivity {
 
             if (captBtnClicked) {
                 try {
-                    myStreamWriter = new OutputStreamWriter(openFileOutput(TEXT_FILE_NAME +
-                            Calendar.getInstance().getTime().toString(), 0));
+                    // Create the file.
+                    File file = new File(folderPose, TEXT_FILE_NAME + "_" +
+                            Calendar.getInstance().getTime().toString()+".txt");
+                    file.createNewFile();
+                    myFileOutputStream = new FileOutputStream(file);
+                    myOutputStreamWriter = new OutputStreamWriter(myFileOutputStream);
                     poseCaptureButton.setText("STOP Capture Pose");
                 } catch (Throwable t) {
-                    Log.e("OutputStreamWriterExcep", "Text file could not be generated.");
+                    Log.e(TAG, "Text file could not be generated.");
                 }
             } else {
                 try {
                     this.writeToFile(arCameraPoseText);
-                    myStreamWriter.close();
+                    myOutputStreamWriter.close();
+                    myFileOutputStream.flush();
+                    myFileOutputStream.close();
                     poseCaptureButton.setText("START Capture Pose");
                 } catch (Throwable t) {
-                    Log.w("StreamWriterWarning", "Text file could not be saved.");
+                    Log.w(TAG, "Text file could not be saved.");
                 }
             }
         });
@@ -160,7 +186,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (isExternalStorageWritable()){
             try {
-                myStreamWriter.write(data);
+                myOutputStreamWriter.write(data);
 
                 Toast.makeText(this, "File saved" ,Toast.LENGTH_SHORT).show();
             }
@@ -190,5 +216,35 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
         return false;
+    }
+
+    /*
+     * Check if app has permission to write on storage
+     */
+    public void isStoragePermissionGranted() {
+        if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                == PackageManager.PERMISSION_GRANTED) {
+            Log.v(TAG,"Permission is granted");
+        } else {
+
+            Log.v(TAG,"Permission is revoked");
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+        }
+    }
+
+    /*
+     * Check if app has permission for the camera
+     */
+    public void isCameraPermissionGranted() {
+        if (checkSelfPermission(Manifest.permission.CAMERA)
+                == PackageManager.PERMISSION_GRANTED) {
+            Log.v(TAG,"Permission is granted");
+        } else {
+
+            Log.v(TAG,"Permission is revoked");
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.CAMERA}, 1);
+        }
     }
 }
