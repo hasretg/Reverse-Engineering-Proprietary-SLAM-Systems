@@ -7,16 +7,28 @@ import android.media.CamcorderProfile;
 import android.media.Image;
 import android.os.Environment;
 
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
+import android.widget.TabHost;
 import android.widget.Toast;
 
 import com.google.ar.core.Anchor;
+import com.google.ar.core.ArCoreApk;
+import com.google.ar.core.Camera;
+import com.google.ar.core.CameraConfig;
+import com.google.ar.core.Config;
+import com.google.ar.core.Session;
 import com.google.ar.core.exceptions.NotYetAvailableException;
+import com.google.ar.core.exceptions.UnavailableApkTooOldException;
+import com.google.ar.core.exceptions.UnavailableArcoreNotInstalledException;
+import com.google.ar.core.exceptions.UnavailableDeviceNotCompatibleException;
+import com.google.ar.core.exceptions.UnavailableSdkTooOldException;
+import com.google.ar.core.exceptions.UnavailableUserDeclinedInstallationException;
 import com.google.ar.sceneform.AnchorNode;
 import com.google.ar.sceneform.math.Vector3;
 import com.google.ar.sceneform.rendering.Color;
@@ -31,6 +43,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.Calendar;
+
+import static com.google.ar.core.ArCoreApk.InstallStatus.INSTALLED;
+import static com.google.ar.core.ArCoreApk.InstallStatus.INSTALL_REQUESTED;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -56,6 +71,8 @@ public class MainActivity extends AppCompatActivity {
             + File.separator + "ImgCapture";
     private File folderImg;
     private static String TEXT_IMG_NAME = "currImg_";
+    private Session arSession;
+    private boolean mUserRequestedInstall = true;
 
 
     @Override
@@ -82,6 +99,11 @@ public class MainActivity extends AppCompatActivity {
         // Check for the permissions
         this.isStoragePermissionGranted();
         this.isCameraPermissionGranted();
+
+        maybeEnableArButton();
+
+
+
 
         // Make sure the path directory exists.
         folderPose = new File(PATH_POSEDIR);
@@ -183,6 +205,53 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+
+    @Override
+    public void onResume(){
+        super.onResume();
+
+        // Make sure ARCore is installed
+        try {
+            if (arSession == null) {
+                switch (ArCoreApk.getInstance().requestInstall(this, mUserRequestedInstall)) {
+                    case INSTALLED:
+                        // Success, create the AR session.
+                        arSession = new Session(this);
+                        Log.v(TAG, "Ar session installed");
+                        break;
+                    case INSTALL_REQUESTED:
+                        Log.v(TAG, "Ar session not installed");
+                        // Ensures next invocation of requestInstall() will either return
+                        // INSTALLED or throw an exception.
+                        mUserRequestedInstall = false;
+                        return;
+                }
+            }
+        } catch (UnavailableUserDeclinedInstallationException e) {
+            Log.v(TAG, "Ar session not installed user declined");
+            // Display an appropriate message to the user and return gracefully.
+            Toast.makeText(this, "TODO: handle exception " + e, Toast.LENGTH_LONG)
+                    .show();
+            return;
+        } catch (UnavailableArcoreNotInstalledException e) {
+            e.printStackTrace();
+        } catch (UnavailableDeviceNotCompatibleException e) {
+            e.printStackTrace();
+        } catch (UnavailableSdkTooOldException e) {
+            e.printStackTrace();
+        } catch (UnavailableApkTooOldException e) {
+            e.printStackTrace();
+        }
+
+        // Set autofocus
+        Config config = new Config(arSession);
+        Log.i(TAG, ""+config.getFocusMode());
+        config.setFocusMode(Config.FocusMode.AUTO);
+        Log.i(TAG, ""+config.getFocusMode());
+        arSession.configure(config);
+    }
+
+
     /*
      * Used as a handler for onClick, so the signature must match onClickListener.
      */
@@ -269,6 +338,19 @@ public class MainActivity extends AppCompatActivity {
             Log.v(TAG,"Permission is revoked");
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.CAMERA}, 1);
+        }
+    }
+
+    void maybeEnableArButton() {
+        ArCoreApk.Availability availability = ArCoreApk.getInstance().checkAvailability(this);
+        if (availability.isTransient()) {
+            // Re-query at 5Hz while compatibility is checked in the background.
+            new Handler().postDelayed(() -> maybeEnableArButton(), 200);
+        }
+        if (availability.isSupported()) {
+            // indicator on the button.
+        } else { // Unsupported or unknown.
+
         }
     }
 }
