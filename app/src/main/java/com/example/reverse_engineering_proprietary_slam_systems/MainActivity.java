@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.ContentValues;
 import android.content.pm.PackageManager;
 import android.media.CamcorderProfile;
+import android.media.Image;
 import android.os.Environment;
 
 import android.provider.MediaStore;
@@ -15,6 +16,7 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.google.ar.core.Anchor;
+import com.google.ar.core.exceptions.NotYetAvailableException;
 import com.google.ar.sceneform.AnchorNode;
 import com.google.ar.sceneform.math.Vector3;
 import com.google.ar.sceneform.rendering.Color;
@@ -50,6 +52,11 @@ public class MainActivity extends AppCompatActivity {
     private boolean captBtnClicked = false;
     private VideoRecorder videoRecorder;
 
+    private static String path_imgDir = Environment.getExternalStorageDirectory()
+            + File.separator + "ImgCapture";
+    private File folderImg;
+    private static String TEXT_IMG_NAME = "currImg_";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,6 +87,10 @@ public class MainActivity extends AppCompatActivity {
         folderPose = new File(PATH_POSEDIR);
         if(!folderPose.exists())
             folderPose.mkdirs();
+
+        folderImg = new File(path_imgDir);
+        if(!folderImg.exists())
+            folderImg.mkdir();
 
         /*
          * When plane in AR recognized and taped, create a sphere at the taped location
@@ -118,7 +129,6 @@ public class MainActivity extends AppCompatActivity {
          */
         poseCaptureButton.setOnClickListener(v -> {
 
-            Log.v("test1", "Timestamp: " + arCameraPoseText);
             captBtnClicked = !captBtnClicked;
 
             if (captBtnClicked) {
@@ -151,11 +161,25 @@ public class MainActivity extends AppCompatActivity {
          */
         arFragment.getArSceneView().getScene().addOnUpdateListener(frameTime -> {
 
-            Vector3 currCameraPose = arFragment.getArSceneView().getScene().getCamera()
-                    .getWorldPosition();
-            long currTime = System.currentTimeMillis() - startTime;
-            arCameraPoseText += "" + currTime + "[ Delta sec: " + frameTime.getDeltaSeconds() +
-                    " ]" + "  Pos: " + currCameraPose.toString() + "\n";
+            if (captBtnClicked) {
+                Vector3 currCameraPose = arFragment.getArSceneView().getScene().getCamera()
+                        .getWorldPosition();
+                long currTime = System.currentTimeMillis() - startTime;
+                arCameraPoseText += "" + currTime + "[ Delta sec: " + frameTime.getDeltaSeconds() +
+                        " ]" + "  Pos: " + currCameraPose.toString() + "\n";
+                try {
+                    Image currImg = arFragment.getArSceneView().getArFrame().acquireCameraImage();
+                    byte[] jpegData = ImageUtils.imageToByteArray(currImg);
+                    FileManager.writeFrame(folderImg, TEXT_IMG_NAME + "_" +
+                            currTime + "_.jpg", jpegData);
+                    currImg.close();
+                    Log.i(TAG, "Img saved");
+                } catch (NotYetAvailableException e) {
+                    e.printStackTrace();
+                    Log.i(TAG, "Img could not be saved");
+
+                }
+            }
         });
     }
 
