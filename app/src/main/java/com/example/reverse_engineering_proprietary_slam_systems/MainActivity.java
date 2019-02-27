@@ -3,6 +3,8 @@ package com.example.reverse_engineering_proprietary_slam_systems;
 import android.Manifest;
 import android.content.ContentValues;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.CamcorderProfile;
 import android.media.Image;
 import android.os.Environment;
@@ -14,12 +16,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
-import android.widget.TabHost;
 import android.widget.Toast;
 
 import com.google.ar.core.Anchor;
 import com.google.ar.core.ArCoreApk;
-import com.google.ar.core.Camera;
 import com.google.ar.core.CameraConfig;
 import com.google.ar.core.Config;
 import com.google.ar.core.Session;
@@ -42,10 +42,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.nio.ByteBuffer;
 import java.util.Calendar;
-
-import static com.google.ar.core.ArCoreApk.InstallStatus.INSTALLED;
-import static com.google.ar.core.ArCoreApk.InstallStatus.INSTALL_REQUESTED;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -91,7 +89,6 @@ public class MainActivity extends AppCompatActivity {
         int orientation = getResources().getConfiguration().orientation;
         videoRecorder.setVideoQuality(CamcorderProfile.QUALITY_1080P, orientation);
         videoRecorder.setSceneView(arFragment.getArSceneView());
-        //videoRecorder.setFrameRate(5);
 
         // Store timestamp when application is executed as start time
         startTime = System.currentTimeMillis();
@@ -100,10 +97,8 @@ public class MainActivity extends AppCompatActivity {
         this.isStoragePermissionGranted();
         this.isCameraPermissionGranted();
 
-        maybeEnableArButton();
-
-
-
+        // Check that ar core is available on the device
+        this.checkArCoreAvailability();
 
         // Make sure the path directory exists.
         folderPose = new File(PATH_POSEDIR);
@@ -179,11 +174,12 @@ public class MainActivity extends AppCompatActivity {
         });
 
         /*
-         * Get camera pose for every frame
+         * Get camera pose and image for every frame and save it to the storage of the phone
          */
         arFragment.getArSceneView().getScene().addOnUpdateListener(frameTime -> {
 
             if (captBtnClicked) {
+
                 Vector3 currCameraPose = arFragment.getArSceneView().getScene().getCamera()
                         .getWorldPosition();
                 long currTime = System.currentTimeMillis() - startTime;
@@ -191,15 +187,21 @@ public class MainActivity extends AppCompatActivity {
                         " ]" + "  Pos: " + currCameraPose.toString() + "\n";
                 try {
                     Image currImg = arFragment.getArSceneView().getArFrame().acquireCameraImage();
+
                     byte[] jpegData = ImageUtils.imageToByteArray(currImg);
+
                     FileManager.writeFrame(folderImg, TEXT_IMG_NAME + "_" +
                             currTime + "_.jpg", jpegData);
                     currImg.close();
                     Log.i(TAG, "Img saved");
+
+                    // Get image size of the current frame
+                    int[] imgSize = arFragment.getArSceneView().getArFrame().getCamera().getImageIntrinsics().getImageDimensions();
+                    Log.i(TAG, "Img dim: " + imgSize[0] + "  " + imgSize[1]);
+
                 } catch (NotYetAvailableException e) {
                     e.printStackTrace();
                     Log.i(TAG, "Img could not be saved");
-
                 }
             }
         });
@@ -210,13 +212,14 @@ public class MainActivity extends AppCompatActivity {
     public void onResume(){
         super.onResume();
 
-        // Make sure ARCore is installed
+        // Make sure ARCore is installed and create a new Session
         try {
             if (arSession == null) {
                 switch (ArCoreApk.getInstance().requestInstall(this, mUserRequestedInstall)) {
                     case INSTALLED:
                         // Success, create the AR session.
                         arSession = new Session(this);
+
                         Log.v(TAG, "Ar session installed");
                         break;
                     case INSTALL_REQUESTED:
@@ -243,14 +246,21 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        // Set autofocus
+        // Define new configuration and set autofocus
         Config config = new Config(arSession);
-        Log.i(TAG, ""+config.getFocusMode());
         config.setFocusMode(Config.FocusMode.AUTO);
-        Log.i(TAG, ""+config.getFocusMode());
+        config.setUpdateMode(Config.UpdateMode.LATEST_CAMERA_IMAGE);
         arSession.configure(config);
-    }
 
+        /*
+         * Set the camera configurations for the session
+         * get(0) = 640 x 480 pixel --> 30 Hz
+         * get(1) = 1280 x 720 pixel --> 12 Hz
+         * get(2) = 1920 x 1080 pixel --> 7 Hz
+         */
+        arSession.setCameraConfig(arSession.getSupportedCameraConfigs().get(1));
+        arFragment.getArSceneView().setupSession(arSession);
+    }
 
     /*
      * Used as a handler for onClick, so the signature must match onClickListener.
@@ -341,11 +351,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    void maybeEnableArButton() {
+    void checkArCoreAvailability() {
         ArCoreApk.Availability availability = ArCoreApk.getInstance().checkAvailability(this);
         if (availability.isTransient()) {
             // Re-query at 5Hz while compatibility is checked in the background.
-            new Handler().postDelayed(() -> maybeEnableArButton(), 200);
+            new Handler().postDelayed(() -> checkArCoreAvailability(), 200);
         }
         if (availability.isSupported()) {
             // indicator on the button.

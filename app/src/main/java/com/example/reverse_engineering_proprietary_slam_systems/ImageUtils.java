@@ -13,7 +13,7 @@ public final class ImageUtils {
 
     public static byte[] imageToByteArray(Image image) {
         byte[] data = null;
-        Log.i("ImageUtils_test", "" + image.getFormat());
+        Log.i("ImageUtils_test", "" + image.getFormat() + "  " + image.getHeight());
         if (image.getFormat() == ImageFormat.JPEG) {
             Image.Plane[] planes = image.getPlanes();
             ByteBuffer buffer = planes[0].getBuffer();
