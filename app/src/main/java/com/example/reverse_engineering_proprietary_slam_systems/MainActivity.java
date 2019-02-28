@@ -7,10 +7,14 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.CamcorderProfile;
 import android.media.Image;
+import android.net.Uri;
+import android.nfc.Tag;
+import android.os.Build;
 import android.os.Environment;
 
 import android.os.Handler;
 import android.provider.MediaStore;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -20,9 +24,13 @@ import android.widget.Toast;
 
 import com.google.ar.core.Anchor;
 import com.google.ar.core.ArCoreApk;
+import com.google.ar.core.AugmentedImage;
+import com.google.ar.core.AugmentedImageDatabase;
 import com.google.ar.core.CameraConfig;
 import com.google.ar.core.Config;
+import com.google.ar.core.Frame;
 import com.google.ar.core.Session;
+import com.google.ar.core.TrackingState;
 import com.google.ar.core.exceptions.NotYetAvailableException;
 import com.google.ar.core.exceptions.UnavailableApkTooOldException;
 import com.google.ar.core.exceptions.UnavailableArcoreNotInstalledException;
@@ -30,26 +38,33 @@ import com.google.ar.core.exceptions.UnavailableDeviceNotCompatibleException;
 import com.google.ar.core.exceptions.UnavailableSdkTooOldException;
 import com.google.ar.core.exceptions.UnavailableUserDeclinedInstallationException;
 import com.google.ar.sceneform.AnchorNode;
+import com.google.ar.sceneform.Camera;
 import com.google.ar.sceneform.math.Vector3;
 import com.google.ar.sceneform.rendering.Color;
+import com.google.ar.sceneform.rendering.Material;
 import com.google.ar.sceneform.rendering.MaterialFactory;
 import com.google.ar.sceneform.rendering.ModelRenderable;
+import com.google.ar.sceneform.rendering.Renderable;
 import com.google.ar.sceneform.rendering.ShapeFactory;
 import com.google.ar.sceneform.ux.ArFragment;
+import com.google.ar.sceneform.ux.TransformableNode;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.nio.ByteBuffer;
 import java.util.Calendar;
+import java.util.Collection;
+import java.util.concurrent.CompletableFuture;
 
 
 public class MainActivity extends AppCompatActivity {
 
     /* Define global variables */
-    private static final String TAG = "SLAM_thesis";
+    private static final String TAG = "MainActivity";
     private static String TEXT_FILE_NAME = "arCameraPose";
     private static String PATH_POSEDIR = Environment.getExternalStorageDirectory()
             + File.separator + "PoseDir";
@@ -71,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
     private static String TEXT_IMG_NAME = "currImg_";
     private Session arSession;
     private boolean mUserRequestedInstall = true;
-
+    private boolean shouldAddModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,6 +99,7 @@ public class MainActivity extends AppCompatActivity {
         recordButton = findViewById(R.id.recButton);
         poseCaptureButton = findViewById(R.id.poseCaptureButton);
 
+
         // Initialize the VideoRecorder
         videoRecorder = new VideoRecorder();
         int orientation = getResources().getConfiguration().orientation;
@@ -93,6 +109,7 @@ public class MainActivity extends AppCompatActivity {
         // Store timestamp when application is executed as start time
         startTime = System.currentTimeMillis();
 
+        shouldAddModel = true;
         // Check for the permissions
         this.isStoragePermissionGranted();
         this.isCameraPermissionGranted();
@@ -203,7 +220,21 @@ public class MainActivity extends AppCompatActivity {
                     e.printStackTrace();
                     Log.i(TAG, "Img could not be saved");
                 }
+
             }
+
+            
+            Frame frame = arFragment.getArSceneView().getArFrame();
+            Collection<AugmentedImage> augmentedImages = frame.getUpdatedTrackables(AugmentedImage.class);
+            for (AugmentedImage augmentedImage : augmentedImages) {
+                if (augmentedImage.getTrackingState() == TrackingState.TRACKING) {
+                    if (augmentedImage.getName().equals("earth") && shouldAddModel) {
+                        this.placeObject(arFragment, augmentedImage.createAnchor(augmentedImage.getCenterPose()));
+                        shouldAddModel = false;
+                    }
+                }
+            }
+
         });
     }
 
@@ -250,7 +281,6 @@ public class MainActivity extends AppCompatActivity {
         Config config = new Config(arSession);
         config.setFocusMode(Config.FocusMode.AUTO);
         config.setUpdateMode(Config.UpdateMode.LATEST_CAMERA_IMAGE);
-        arSession.configure(config);
 
         /*
          * Set the camera configurations for the session
@@ -260,6 +290,16 @@ public class MainActivity extends AppCompatActivity {
          */
         arSession.setCameraConfig(arSession.getSupportedCameraConfigs().get(1));
         arFragment.getArSceneView().setupSession(arSession);
+
+        if (setupAugmentedImagesDb(config, arSession)){
+            Log.i(TAG, "Image database setup successful!");
+        } else{
+            Log.i(TAG, "Image database setup not successful!");
+        }
+
+        arSession.configure(config);
+
+
     }
 
     /*
@@ -281,6 +321,54 @@ public class MainActivity extends AppCompatActivity {
             getContentResolver().insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values);
         }
     }
+
+    /*
+     * Setup a database with images to track
+     */
+    public boolean setupAugmentedImagesDb(Config config, Session session) {
+        AugmentedImageDatabase augmentedImageDatabase;
+        Bitmap bitmap = loadAugmentedImage();
+        if (bitmap == null) {
+            return false;
+        }
+        augmentedImageDatabase = new AugmentedImageDatabase(session);
+        augmentedImageDatabase.addImage("earth", bitmap);
+        config.setAugmentedImageDatabase(augmentedImageDatabase);
+        return true;
+    }
+
+    /*
+     * Load images from the assets folder
+     */
+    private Bitmap loadAugmentedImage() {
+        try (InputStream is = getAssets().open("earth.jpg")) {
+            return BitmapFactory.decodeStream(is);
+        } catch (IOException e) {
+            Log.e("ImageLoad", "IO Exception", e);
+        }
+        return null;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    private void placeObject(ArFragment arFragment, Anchor anchor) {
+        MaterialFactory.makeOpaqueWithColor(this, new Color(android.graphics.Color.RED))
+                .thenAccept(material -> {
+                            ModelRenderable renderable = ShapeFactory.makeSphere(0.1f,
+                                    new Vector3(0f, 0f, 0f), material);
+                            addNodeToScene(arFragment, anchor, renderable);
+                        });
+    }
+
+
+    private void addNodeToScene(ArFragment arFragment, Anchor anchor, Renderable renderable) {
+        AnchorNode anchorNode = new AnchorNode(anchor);
+        TransformableNode node = new TransformableNode(arFragment.getTransformationSystem());
+        node.setRenderable(renderable);
+        node.setParent(anchorNode);
+        arFragment.getArSceneView().getScene().addChild(anchorNode);
+        node.select();
+    }
+
 
     /*
      * Write a string in a given file
