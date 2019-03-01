@@ -7,8 +7,8 @@
     tools:context=".MainActivity">
 
     <fragment
-        android:id="@+id/arFragment"
-        android:name="com.google.ar.sceneform.ux.ArFragment"
+        android:id="@+id/myArFrag"
+        android:name="com.example.reverse_engineering_proprietary_slam_systems.MyArFragment"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -16,28 +16,16 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <android.support.v7.widget.AppCompatButton
-        android:id="@+id/recButton"
-        android:layout_width="400px"
-        android:layout_height="150px"
-        android:layout_marginBottom="103dp"
-        android:text="START Recording"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_editor_absoluteX="340px"
-        app:layout_editor_absoluteY="1500px" />
 
     <android.support.v7.widget.AppCompatButton
-        android:id="@+id/poseCaptureButton"
+        android:id="@+id/captureButton"
         android:layout_width="400px"
-        android:layout_height="170px"
+        android:layout_height="180px"
         android:layout_marginBottom="50dp"
-        android:text="START Capture Pose"
+        android:text="START capturing Pose and image"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_editor_absoluteX="340px"
-        app:layout_editor_absoluteY="1500px" />
+        />
 
 </android.support.constraint.ConstraintLayout>
