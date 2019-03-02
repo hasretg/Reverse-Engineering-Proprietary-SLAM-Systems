@@ -19,13 +19,24 @@
 
     <android.support.v7.widget.AppCompatButton
         android:id="@+id/captureButton"
-        android:layout_width="400px"
-        android:layout_height="180px"
+        android:layout_width="500px"
+        android:layout_height="wrap_content"
         android:layout_marginBottom="50dp"
         android:text="START capturing Pose and image"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        />
+
+    <android.support.v7.widget.AppCompatButton
+        android:id="@+id/initButton"
+        android:layout_width="500px"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="200px"
+        android:text="Initialize pose"
+        app:layout_constraintBottom_toBottomOf="@id/captureButton"
+        app:layout_constraintEnd_toEndOf="@id/captureButton"
+        app:layout_constraintStart_toStartOf="@id/captureButton"
         />
 
 </android.support.constraint.ConstraintLayout>

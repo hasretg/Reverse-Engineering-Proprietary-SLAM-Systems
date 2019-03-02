@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.Image;
 
+import android.net.Uri;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -36,6 +37,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
 
+import static android.arch.lifecycle.Lifecycle.State.INITIALIZED;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -46,6 +49,8 @@ public class MainActivity extends AppCompatActivity {
     private ModelRenderable myRenderable;
     private Session mySession;
 
+    private Button initButton;
+    private boolean isInitialized = false;
     private Button captureButton;
     private boolean captBtnClicked = false;
 
@@ -53,6 +58,12 @@ public class MainActivity extends AppCompatActivity {
     private boolean shouldAddModel;
 
     FileManager myFileManager;
+
+    private enum  STATUS {
+        START,
+        INITIALIZE,
+        TRACKING
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +74,7 @@ public class MainActivity extends AppCompatActivity {
         myArFragment = (MyArFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.myArFrag);
         captureButton = findViewById(R.id.captureButton);
+        initButton = findViewById(R.id.initButton);
 
         // Store timestamp when application is executed as start time
         startTime = System.currentTimeMillis();
@@ -75,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
         // Check that ar core is available on the device
         myArFragment.checkArCoreAvailability(this);
 
-        // Create renderable
+        // Create renderable (Red sphere)
         createRenderable();
 
         /*
@@ -102,13 +114,22 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        initButton.setOnClickListener(v ->{
+
+
+
+
+        });
+
         /*
          * Get camera pose and image for every frame and save it to the storage of the phone
          */
         myArFragment.getArSceneView().getScene().addOnUpdateListener(frameTime -> {
 
+            // Get the current frame
+            Frame currFrame = myArFragment.getArSceneView().getArFrame();
+
             if (captBtnClicked) {
-                Frame currFrame = myArFragment.getArSceneView().getArFrame();
                 long currTime = System.currentTimeMillis() - startTime;
 
                 float[] currCamTrans = currFrame.getCamera().getPose().getTranslation();
@@ -117,7 +138,7 @@ public class MainActivity extends AppCompatActivity {
                 myFileManager.writeNewPose(currTime, currCamTrans, currCamRot);
 
                 try {
-                    Image currImg = myArFragment.getArSceneView().getArFrame().acquireCameraImage();
+                    Image currImg = currFrame.acquireCameraImage();
                     byte[] jpegData = ImageUtils.imageToByteArray(currImg);
                     myFileManager.saveImage("img_" + currTime, jpegData);
                     currImg.close();
@@ -126,13 +147,13 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
-            Frame frame = myArFragment.getArSceneView().getArFrame();
-            Collection<AugmentedImage> augmentedImages = frame.getUpdatedTrackables(AugmentedImage.class);
+
+            Collection<AugmentedImage> augmentedImages = currFrame.getUpdatedTrackables(AugmentedImage.class);
             for (AugmentedImage augmentedImage : augmentedImages) {
                 if (augmentedImage.getTrackingState() == TrackingState.TRACKING) {
                     if (augmentedImage.getName().equals("earth") && shouldAddModel) {
                         myArFragment.addTrackableNodeToScene(augmentedImage.createAnchor(augmentedImage.getCenterPose()), myRenderable);
-                        //shouldAddModel = false;
+                        shouldAddModel = false;
                         Log.i(TAG, "Extend x: " + augmentedImage.getExtentX() + " ; Extend y: " + augmentedImage.getExtentZ());
                         Log.i(TAG, "Center position: " + augmentedImage.getCenterPose().toString());
 
@@ -147,7 +168,48 @@ public class MainActivity extends AppCompatActivity {
     public void onResume(){
         super.onResume();
 
-        // Make sure ARCore is installed and create a new Session
+        // Make sure ARCore is installed and create a new Session and define all the configurations
+        // for this session
+        if(createSession()){
+            defineConfiguration();
+        }
+    }
+
+    /**
+     * Create a global renderable for the ArView
+     */
+    private void createRenderable() {
+
+        ModelRenderable.builder()
+                // To load as an asset from the 'assets' folder ('src/main/assets/andy.sfb'):
+                .setSource(this, Uri.parse("earth.sfb"))
+
+                // Instead, load as a resource from the 'res/raw' folder ('src/main/res/raw/andy.sfb'):
+                //.setSource(this, R.raw.andy)
+
+                .build()
+                .thenAccept(renderable -> myRenderable = renderable)
+                .exceptionally(
+                        throwable -> {
+                            Log.e(TAG, "Unable to load Renderable.", throwable);
+                            return null;
+                        });
+        /* MaterialFactory.makeOpaqueWithColor(this, new Color(android.graphics.Color.RED))
+                .thenAccept(material -> {
+                    myRenderable = ShapeFactory.makeSphere(0.1f,
+                            new Vector3(0f, 0f, 0f), material);
+                });
+        */
+    }
+
+
+    /**
+     * Create e new session and make sure ArCore is installed
+     * @return boolean if a new session could be created
+     */
+    private Boolean createSession(){
+
+        Boolean sessionCreated = false;
         try {
             if (mySession == null) {
                 switch (ArCoreApk.getInstance().requestInstall(this, mUserRequestedInstall)) {
@@ -156,21 +218,21 @@ public class MainActivity extends AppCompatActivity {
                         mySession = new Session(this);
 
                         Log.v(TAG, "Ar session installed");
+                        sessionCreated = true;
                         break;
                     case INSTALL_REQUESTED:
                         Log.v(TAG, "Ar session not installed");
                         // Ensures next invocation of requestInstall() will either return
                         // INSTALLED or throw an exception.
                         mUserRequestedInstall = false;
-                        return;
                 }
-            }
+            } else
+                sessionCreated = true;
         } catch (UnavailableUserDeclinedInstallationException e) {
             Log.v(TAG, "Ar session not installed user declined");
             // Display an appropriate message to the user and return gracefully.
             Toast.makeText(this, "Handle exception " + e, Toast.LENGTH_LONG)
                     .show();
-            return;
         } catch (UnavailableArcoreNotInstalledException e) {
             e.printStackTrace();
         } catch (UnavailableDeviceNotCompatibleException e) {
@@ -180,15 +242,20 @@ public class MainActivity extends AppCompatActivity {
         } catch (UnavailableApkTooOldException e) {
             e.printStackTrace();
         }
+        return sessionCreated;
+    }
 
+
+    /**
+     * Define configuration for the main session
+     */
+    private void defineConfiguration(){
         // Define new configuration and set autofocus
         Config config = new Config(mySession);
         config.setFocusMode(Config.FocusMode.AUTO);
         config.setUpdateMode(Config.UpdateMode.LATEST_CAMERA_IMAGE);
 
-        /*
-         * Set the camera configurations for the session
-         */
+        // Set the camera configurations for the session
         mySession.setCameraConfig(mySession.getSupportedCameraConfigs().get(1));
         myArFragment.getArSceneView().setupSession(mySession);
 
@@ -201,19 +268,14 @@ public class MainActivity extends AppCompatActivity {
         mySession.configure(config);
     }
 
-    private void createRenderable() {
-        MaterialFactory.makeOpaqueWithColor(this, new Color(android.graphics.Color.RED))
-                .thenAccept(material -> {
-                    myRenderable = ShapeFactory.makeSphere(0.1f,
-                            new Vector3(0f, 0f, 0f), material);
-
-                });
-    }
 
     /**
      * Setup a database with images to track
-     **/
-    public boolean setupAugmentedImagesDb(Config config, Session session) {
+     * @param config Configuration to set up database
+     * @param session Session which includes the database
+     * @return boolean if an image database could be set-up
+     */
+    private boolean setupAugmentedImagesDb(Config config, Session session) {
         AugmentedImageDatabase augmentedImageDatabase;
         Bitmap bitmap = loadAugmentedImage();
         if (bitmap == null) {
@@ -225,22 +287,25 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+
     /**
-     * Load images from the assets folder
-     **/
+     * Load images from the asset folder
+     * @return Bitmap of the image in the asset folder
+     */
     private Bitmap loadAugmentedImage() {
         try (InputStream is = getAssets().open("earth.jpg")) {
             return BitmapFactory.decodeStream(is);
         } catch (IOException e) {
-            Log.e("ImageLoad", "IO Exception", e);
+            Log.e(TAG, "IO Exception", e);
         }
         return null;
     }
 
+
     /**
      * Check if app has permission to write on storage
      **/
-    public void isStoragePermissionGranted() {
+    private void isStoragePermissionGranted() {
         if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 == PackageManager.PERMISSION_GRANTED) {
             Log.v(TAG,"Permission is granted");
@@ -252,10 +317,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
     /**
      * Check if app has permission for the camera
      **/
-    public void isCameraPermissionGranted() {
+    private void isCameraPermissionGranted() {
         if (checkSelfPermission(Manifest.permission.CAMERA)
                 == PackageManager.PERMISSION_GRANTED) {
             Log.i(TAG,"Camera permission is granted");
@@ -266,7 +332,6 @@ public class MainActivity extends AppCompatActivity {
                     new String[]{Manifest.permission.CAMERA}, 1);
         }
     }
-
 
 
         /*
