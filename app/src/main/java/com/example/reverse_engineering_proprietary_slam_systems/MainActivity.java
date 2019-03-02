@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
 
     private enum  STATUS {
         START,
-        INITIALIZE,
+        INITIALIZATION,
         TRACKING
     }
 
@@ -115,8 +115,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         initButton.setOnClickListener(v ->{
-
-
+        // TODO: Functionality when init button is clicked
 
 
         });
