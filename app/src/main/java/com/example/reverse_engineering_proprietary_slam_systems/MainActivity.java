@@ -11,7 +11,10 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.StateSet;
+import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.ar.core.ArCoreApk;
@@ -27,17 +30,11 @@ import com.google.ar.core.exceptions.UnavailableArcoreNotInstalledException;
 import com.google.ar.core.exceptions.UnavailableDeviceNotCompatibleException;
 import com.google.ar.core.exceptions.UnavailableSdkTooOldException;
 import com.google.ar.core.exceptions.UnavailableUserDeclinedInstallationException;
-import com.google.ar.sceneform.math.Vector3;
-import com.google.ar.sceneform.rendering.Color;
-import com.google.ar.sceneform.rendering.MaterialFactory;
 import com.google.ar.sceneform.rendering.ModelRenderable;
-import com.google.ar.sceneform.rendering.ShapeFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
-
-import static android.arch.lifecycle.Lifecycle.State.INITIALIZED;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -53,33 +50,46 @@ public class MainActivity extends AppCompatActivity {
     private boolean isInitialized = false;
     private Button captureButton;
     private boolean captBtnClicked = false;
+    private TextView myStatusTxt;
 
     private boolean mUserRequestedInstall = true;
     private boolean shouldAddModel;
 
     FileManager myFileManager;
+    MathUtils mathUtilStart;
+    MathUtils mathUtilEnd;
 
-    private enum  STATUS {
+    private enum STATUS {
         START,
         INITIALIZATION,
-        TRACKING
+        TRACKING,
+        CLOSELOOP,
     }
+
+    private STATUS myStatus;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         // Defining elements from the UI
         myArFragment = (MyArFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.myArFrag);
         captureButton = findViewById(R.id.captureButton);
+        captureButton.setVisibility(View.GONE);
         initButton = findViewById(R.id.initButton);
+        myStatusTxt = findViewById(R.id.statusText);
 
-        // Store timestamp when application is executed as start time
+        // Store timestamp when application is executed as start time and set status
         startTime = System.currentTimeMillis();
 
         shouldAddModel = true;
+
+        // New instance of class MathUtils. Set max iteration number for the initialization to 10
+        mathUtilStart = new MathUtils(10);
+        mathUtilEnd = new MathUtils(10);
+
+
         // Check for the permissions
         this.isStoragePermissionGranted();
         this.isCameraPermissionGranted();
@@ -90,37 +100,51 @@ public class MainActivity extends AppCompatActivity {
         // Create renderable (Red sphere)
         createRenderable();
 
-        /*
+        /**
          * When plane in AR recognized and taped, create a sphere at the taped location
          */
         myArFragment.setOnTapArPlaneListener((hitResult, plane, motionEvent) -> {
             myArFragment.addAnchorNodeToScene(hitResult.createAnchor(), myRenderable);
         });
 
+        /**
+         * Set to initialization mode when button is clicked and current status is START
+         */
+        initButton.setOnClickListener(v -> {
+            Log.i(TAG, "Test7");
+            if (myStatus == STATUS.START)
+                Log.i(TAG, "Test8");
+                myStatusTxt.setText("STATUS: Initialization");
+                myStatus = STATUS.INITIALIZATION;
+                initButton.setVisibility(View.GONE);
+        });
 
-        /*
-         * Handle camera pose
+        /**
+         * Handle camera pose and image capture
          */
         captureButton.setOnClickListener(v -> {
+            Log.i(TAG, "Test6");
+            if (myStatus == STATUS.TRACKING) {
 
-            captBtnClicked = !captBtnClicked;
+                captBtnClicked = !captBtnClicked;
 
-            if (captBtnClicked) {
-                myFileManager= new FileManager();
-                captureButton.setText("STOP Capture Pose");
-            } else {
-                Log.i(TAG, myFileManager.savePose());
-                captureButton.setText("START Capture Pose");
-            }
+                if (captBtnClicked) {
+                    Log.i(TAG, "Test4");
+                    myFileManager = new FileManager();
+                    captureButton.setText("STOP Capture Pose");
+                } else {
+                    Log.i(TAG, "Test5");
+                    String poseInfo = myFileManager.savePose();
+                    Log.i(TAG, poseInfo);
+                    captureButton.setText("START Capture Pose");
+                    myStatusTxt.setText("STATUS: CLOSE LOOP");
+                    myStatus = STATUS.CLOSELOOP;
+                }
+            } else
+                Toast.makeText(this, "Not in tracking status", Toast.LENGTH_LONG);
         });
 
-        initButton.setOnClickListener(v ->{
-        // TODO: Functionality when init button is clicked
-
-
-        });
-
-        /*
+        /**
          * Get camera pose and image for every frame and save it to the storage of the phone
          */
         myArFragment.getArSceneView().getScene().addOnUpdateListener(frameTime -> {
@@ -128,38 +152,77 @@ public class MainActivity extends AppCompatActivity {
             // Get the current frame
             Frame currFrame = myArFragment.getArSceneView().getArFrame();
 
-            if (captBtnClicked) {
-                long currTime = System.currentTimeMillis() - startTime;
+            switch (myStatus) {
+                case TRACKING:
+                    if (captBtnClicked) {
+                        long currTime = System.currentTimeMillis() - startTime;
 
-                float[] currCamTrans = currFrame.getCamera().getPose().getTranslation();
-                float[] currCamRot = currFrame.getCamera().getPose().getRotationQuaternion();
+                        float[] currCamTrans = currFrame.getCamera().getPose().getTranslation();
+                        float[] currCamRot = currFrame.getCamera().getPose().getRotationQuaternion();
 
-                myFileManager.writeNewPose(currTime, currCamTrans, currCamRot);
-
-                try {
-                    Image currImg = currFrame.acquireCameraImage();
-                    byte[] jpegData = ImageUtils.imageToByteArray(currImg);
-                    myFileManager.saveImage("img_" + currTime, jpegData);
-                    currImg.close();
-                } catch (NotYetAvailableException e) {
-                    e.printStackTrace();
-                }
-            }
-
-
-            Collection<AugmentedImage> augmentedImages = currFrame.getUpdatedTrackables(AugmentedImage.class);
-            for (AugmentedImage augmentedImage : augmentedImages) {
-                if (augmentedImage.getTrackingState() == TrackingState.TRACKING) {
-                    if (augmentedImage.getName().equals("earth") && shouldAddModel) {
-                        myArFragment.addTrackableNodeToScene(augmentedImage.createAnchor(augmentedImage.getCenterPose()), myRenderable);
-                        shouldAddModel = false;
-                        Log.i(TAG, "Extend x: " + augmentedImage.getExtentX() + " ; Extend y: " + augmentedImage.getExtentZ());
-                        Log.i(TAG, "Center position: " + augmentedImage.getCenterPose().toString());
-
+                        myFileManager.writeNewPose(currTime, mathUtilStart.getRelativeTranslation(currCamTrans),
+                                mathUtilStart.getRelativeOrientation(currCamRot));
+                        try {
+                            Image currImg = currFrame.acquireCameraImage();
+                            byte[] jpegData = ImageUtils.imageToByteArray(currImg);
+                            myFileManager.saveImage("img_" + currTime, jpegData);
+                            currImg.close();
+                        } catch (NotYetAvailableException e) {
+                            e.printStackTrace();
+                        }
                     }
-                }
-            }
+                    break;
 
+                case INITIALIZATION:
+                    Collection<AugmentedImage> augmentedImages = currFrame.getUpdatedTrackables(AugmentedImage.class);
+                    for (AugmentedImage augmentedImage : augmentedImages) {
+                        if (augmentedImage.getTrackingState() == TrackingState.TRACKING) {
+                            if (augmentedImage.getName().equals("earth") && shouldAddModel) {
+                                float[] initCoord = augmentedImage.getCenterPose().getTranslation();
+                                float[] initQuat = currFrame.getCamera().getPose().getRotationQuaternion();
+
+                                if (!mathUtilStart.addCoord(initCoord, initQuat)) {
+                                    Toast.makeText(this, "Initialization successfull!", Toast.LENGTH_LONG);
+                                    myStatus = STATUS.TRACKING;
+                                    myStatusTxt.setText("STATUS: tracking");
+                                    captureButton.setVisibility(View.VISIBLE);
+                                    myArFragment.addTrackableNodeToScene(augmentedImage.createAnchor(augmentedImage.getCenterPose()), myRenderable);
+                                    //shouldAddModel = false;
+                                    Log.i(TAG, "Init coord: " + mathUtilStart.initCoord[0] + " ; " + mathUtilStart.initCoord[1] + " ; " + mathUtilStart.initCoord[2]);
+                                    Log.i(TAG, "coord std dev: " + mathUtilStart.initCoordStdDev[0] + " ; " + mathUtilStart.initCoordStdDev[1] + " ; " + mathUtilStart.initCoordStdDev[2]);
+
+                                    Log.i(TAG, "Init quat: " + mathUtilStart.initQuater.x + " ; " + mathUtilStart.initQuater.y + " ; " + mathUtilStart.initQuater.z + " ; " + mathUtilStart.initQuater.w);
+                                    Log.i(TAG, "Quat std dev: " + mathUtilStart.initQuaterStdDev[0] + " ; " + mathUtilStart.initQuaterStdDev[1] + " ; " + mathUtilStart.initQuaterStdDev[2] + " ; " + mathUtilStart.initQuaterStdDev[3]);
+
+                                }
+
+                            }
+                        }
+                    }
+                    break;
+
+                case CLOSELOOP:
+                    Collection<AugmentedImage> augmentedImages2 = currFrame.getUpdatedTrackables(AugmentedImage.class);
+                    for (AugmentedImage augmentedImage2 : augmentedImages2) {
+                        if (augmentedImage2.getTrackingState() == TrackingState.TRACKING) {
+                            if (augmentedImage2.getName().equals("earth")) {
+
+                                float[] initCoord = augmentedImage2.getCenterPose().getTranslation();
+                                float[] initQuat = currFrame.getCamera().getPose().getRotationQuaternion();
+                                if (!mathUtilEnd.addCoord(initCoord, initQuat)) {
+                                    Log.i(TAG, "End coord: " + mathUtilEnd.initCoord[0] + " ; " + mathUtilEnd.initCoord[1] + " ; " + mathUtilEnd.initCoord[2]);
+                                    Log.i(TAG, "End coord std dev: " + mathUtilEnd.initCoordStdDev[0] + " ; " + mathUtilEnd.initCoordStdDev[1] + " ; " + mathUtilEnd.initCoordStdDev[2]);
+                                    Log.i(TAG, "End quat: " + mathUtilEnd.initQuater.x + " ; " + mathUtilEnd.initQuater.y + " ; " + mathUtilEnd.initQuater.z + " ; " + mathUtilEnd.initQuater.w);
+                                    Log.i(TAG, "End Quat std dev: " + mathUtilEnd.initQuaterStdDev[0] + " ; " + mathUtilEnd.initQuaterStdDev[1] + " ; " + mathUtilEnd.initQuaterStdDev[2] + " ; " + mathUtilEnd.initQuaterStdDev[3]);
+                                    myStatus = STATUS.START;
+                                    myStatusTxt.setText("STATUS: Start");
+                                    initButton.setVisibility(View.VISIBLE);
+                                }
+                            }
+                        }
+                    }
+                    break;
+            }
         });
     }
 
@@ -171,7 +234,11 @@ public class MainActivity extends AppCompatActivity {
         // for this session
         if(createSession()){
             defineConfiguration();
+            myStatusTxt.setText("STATUS: START");
+            myStatus =  STATUS.START;
+
         }
+
     }
 
     /**
