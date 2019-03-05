@@ -151,6 +151,8 @@ public class MainActivity extends AppCompatActivity {
 
             // Get the current frame
             Frame currFrame = myArFragment.getArSceneView().getArFrame();
+            float[] tmpQ = currFrame.getCamera().getPose().getRotationQuaternion();
+            //Log.i(TAG, "Curr Quater: " + tmpQ[0] + " ; " + tmpQ[1] + " ; " + tmpQ[2]  + " ; " + tmpQ[3] );
 
             switch (myStatus) {
                 case TRACKING:
@@ -236,9 +238,7 @@ public class MainActivity extends AppCompatActivity {
             defineConfiguration();
             myStatusTxt.setText("STATUS: START");
             myStatus =  STATUS.START;
-
         }
-
     }
 
     /**
@@ -267,7 +267,6 @@ public class MainActivity extends AppCompatActivity {
                 });
         */
     }
-
 
     /**
      * Create e new session and make sure ArCore is installed

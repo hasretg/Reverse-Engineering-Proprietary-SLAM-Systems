@@ -44,8 +44,10 @@ public class MathUtils {
             pose[1][counter] = coord2[1];
             pose[2][counter] = coord2[2];
             pose[3][counter] = quater2[0];
+            pose[4][counter] = quater2[1];
             pose[5][counter] = quater2[2];
             pose[6][counter] = quater2[3];
+
             counter++;
             return true;
         }else {
@@ -113,7 +115,7 @@ public class MathUtils {
 
         float[] tmp = new float[arr.length];
         for(int i=0; i<arr.length; i++){
-            tmp[i] = arr[i] - initCoord[i];
+            tmp[i] = (arr[i] - initCoord[i])*(-1);
         }
        return tmp;
     }
@@ -127,6 +129,7 @@ public class MathUtils {
 
         Quaternion arrQuater = new Quaternion(arr[0], arr[1], arr[2], arr[3]);
         Quaternion tmp = Quaternion.multiply(arrQuater, initQuater.inverted());
+        //tmp = Quaternion.multiply(tmp, new Quaternion(0f, 0f, 1f, 0f));
 
         return new float[]{tmp.x, tmp.y, tmp.z, tmp.w};
     }
