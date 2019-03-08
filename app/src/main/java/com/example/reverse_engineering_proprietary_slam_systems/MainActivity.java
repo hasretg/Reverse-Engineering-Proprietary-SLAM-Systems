@@ -36,6 +36,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -163,10 +165,22 @@ public class MainActivity extends AppCompatActivity {
                         float[] focalLength = currCamera.getImageIntrinsics().getFocalLength();
                         float[] principlePoint = currCamera.getImageIntrinsics().getPrincipalPoint();
 
-                        myFileManager.writeNewLine(currTime,
+                        myFileManager.writePoseInfo(currTime,
                                 mathUtilStart.getRelativeTranslation(currCamTrans),
                                 mathUtilStart.getRelativeOrientation(currCamRot),
                                 imgDim, focalLength, principlePoint, frameID);
+
+                        Iterator it = augmentedImgs.entrySet().iterator();
+                        while (it.hasNext()) {
+                            Map.Entry pair = (Map.Entry)it.next();
+                            String myKey = (String)pair.getKey();
+                            AugmentedImg myImg = (AugmentedImg)pair.getValue();
+                            myFileManager.writePosterInfo(myKey, myImg.getSize(),
+                                    myImg.getCoordinates(), myImg.getQuaternion());
+                            it.remove();
+                        }
+                        myFileManager.finishTextline();
+
                         try {
                             Image currImg = currFrame.acquireCameraImage();
                             byte[] jpegData = ImageUtils.imageToByteArray(currImg);
