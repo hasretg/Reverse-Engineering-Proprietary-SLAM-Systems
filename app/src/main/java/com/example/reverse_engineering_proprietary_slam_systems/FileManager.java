@@ -58,7 +58,7 @@ public final class FileManager {
 
     public void saveImage(String imgName, byte[] data) {
         try {
-            imgFile = new File(imgSubFolder, imgName + ".jpeg");
+            imgFile = new File(imgSubFolder, imgName + ".jpg");
             BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(imgFile));
             bos.write(data);
             bos.flush();
@@ -72,7 +72,7 @@ public final class FileManager {
 
         String str_line = ""+currTime+","+imgDim[0]+","+imgDim[1]+","+princPt[0]+","+princPt[1]
                 +","+focalLength[0]+","+focalLength[1]+","+camTrans[0]+","+camTrans[1]
-                +","+camTrans[2]+","+camRot[0]+","+frameId;
+                +","+camTrans[2]+","+camRot[0]+","+"img_"+frameId+".jpg";
         poseTextFile += str_line + "\n";
     }
 

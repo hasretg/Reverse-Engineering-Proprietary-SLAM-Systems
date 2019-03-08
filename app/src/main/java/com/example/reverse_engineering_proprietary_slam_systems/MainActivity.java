@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
     private MyArFragment myArFragment;
     private ModelRenderable myRenderable;
     private Session mySession;
-    private int frameID = 1;
+    private int frameID;
 
     private Button initButton;
     private Button captureButton;
@@ -80,13 +80,7 @@ public class MainActivity extends AppCompatActivity {
         initButton = findViewById(R.id.initButton);
         myStatusTxt = findViewById(R.id.statusText);
 
-        // Store timestamp when application is executed as start time and set status
-        startTime = System.currentTimeMillis();
-
-        // New instance of class MathUtils. Set max iteration number for the initialization to 10
-        mathUtilStart = new MathUtils(10);
-        mathUtilEnd = new MathUtils(10);
-
+        startNewMeasurement();
 
         // Check for the permissions
         this.isStoragePermissionGranted();
@@ -98,26 +92,23 @@ public class MainActivity extends AppCompatActivity {
         // Create renderable (Red sphere)
         createRenderable();
 
-        /**
+        /*
          * When plane in AR recognized and taped, create a sphere at the taped location
          */
-        myArFragment.setOnTapArPlaneListener((hitResult, plane, motionEvent) -> {
-            myArFragment.addAnchorNodeToScene(hitResult.createAnchor(), myRenderable);
-        });
+        myArFragment.setOnTapArPlaneListener((hitResult, plane, motionEvent) ->
+                myArFragment.addAnchorNodeToScene(hitResult.createAnchor(), myRenderable));
 
-        /**
+        /*
          * Set to initialization mode when button is clicked and current status is START
          */
         initButton.setOnClickListener(v -> {
-            Log.i(TAG, "Test7");
             if (myStatus == STATUS.START)
-                Log.i(TAG, "Test8");
             myStatusTxt.setText("STATUS: Initialization");
             myStatus = STATUS.INITIALIZATION;
             initButton.setVisibility(View.GONE);
         });
 
-        /**
+        /*
          * Handle camera pose and image capture
          */
         captureButton.setOnClickListener(v -> {
@@ -131,15 +122,18 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     String poseInfo = myFileManager.savePose();
                     Log.i(TAG, poseInfo);
+                    captureButton.setVisibility(View.GONE);
                     captureButton.setText("START Capture Pose");
                     myStatusTxt.setText("STATUS: CLOSE LOOP");
                     myStatus = STATUS.CLOSELOOP;
                 }
             } else
-                Toast.makeText(this, "Not in tracking status", Toast.LENGTH_LONG);
+
+                Toast.makeText(this, "Not in tracking status", Toast.LENGTH_SHORT);
+
         });
 
-        /**
+        /*
          * Get camera pose and image for every frame and save it to the storage of the phone
          */
         myArFragment.getArSceneView().getScene().addOnUpdateListener(frameTime -> {
@@ -148,6 +142,7 @@ public class MainActivity extends AppCompatActivity {
             Frame currFrame = myArFragment.getArSceneView().getArFrame();
             HashMap<String, AugmentedImg> augmentedImgs = new HashMap<>();
 
+            assert currFrame != null;
             Collection<AugmentedImage> augmentedImages = currFrame.getUpdatedTrackables(AugmentedImage.class);
             for (AugmentedImage augmentedImage : augmentedImages) {
                 if (augmentedImage.getTrackingState() == TrackingState.TRACKING) {
@@ -188,6 +183,7 @@ public class MainActivity extends AppCompatActivity {
 
                     if (augmentedImgs.containsKey("earth")) {
                         AugmentedImg myAugmImg = augmentedImgs.get("earth");
+                        assert myAugmImg != null;
                         if (!mathUtilStart.addCoord(myAugmImg.getCoordinates(), myAugmImg.getQuaternion())) {
 
                             Toast.makeText(this, "Initialization successfull!", Toast.LENGTH_LONG);
@@ -209,7 +205,8 @@ public class MainActivity extends AppCompatActivity {
 
                     if (augmentedImgs.containsKey("earth")) {
                         AugmentedImg myAugmImg = augmentedImgs.get("earth");
-                        if (!mathUtilStart.addCoord(myAugmImg.getCoordinates(), myAugmImg.getQuaternion())) {
+                        assert myAugmImg != null;
+                        if (!mathUtilEnd.addCoord(myAugmImg.getCoordinates(), myAugmImg.getQuaternion())) {
                             Log.i(TAG, "End coord: " + mathUtilEnd.initCoord[0] + " ; " + mathUtilEnd.initCoord[1] + " ; " + mathUtilEnd.initCoord[2]);
                             Log.i(TAG, "End coord std dev: " + mathUtilEnd.initCoordStdDev[0] + " ; " + mathUtilEnd.initCoordStdDev[1] + " ; " + mathUtilEnd.initCoordStdDev[2]);
                             Log.i(TAG, "End quat: " + mathUtilEnd.initQuater.x + " ; " + mathUtilEnd.initQuater.y + " ; " + mathUtilEnd.initQuater.z + " ; " + mathUtilEnd.initQuater.w);
@@ -217,6 +214,7 @@ public class MainActivity extends AppCompatActivity {
                             myStatus = STATUS.START;
                             myStatusTxt.setText("STATUS: Start");
                             initButton.setVisibility(View.VISIBLE);
+                            startNewMeasurement();
                         }
                     }
                     break;
@@ -237,6 +235,21 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Set variables new which needs to be changed for a new measurement session
+     */
+    public void startNewMeasurement(){
+        // Store timestamp when application is executed as start time and set status
+        startTime = System.currentTimeMillis();
+
+        // Set the enumeration of the frames to 1
+        frameID = 1;
+
+        // New instance of class MathUtils. Set max iteration number for the initialization to 10
+        mathUtilStart = new MathUtils(10);
+        mathUtilEnd = new MathUtils(10);
+
+    }
     /**
      * Create a global renderable for the ArView
      */
@@ -270,7 +283,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private Boolean createSession(){
 
-        Boolean sessionCreated = false;
+        boolean sessionCreated = false;
         try {
             if (mySession == null) {
                 switch (ArCoreApk.getInstance().requestInstall(this, mUserRequestedInstall)) {
@@ -338,12 +351,14 @@ public class MainActivity extends AppCompatActivity {
      */
     private boolean setupAugmentedImagesDb(Config config, Session session) {
         AugmentedImageDatabase augmentedImageDatabase;
-        Bitmap bitmap = loadAugmentedImage();
+        Bitmap bitmap = loadAugmentedImage("earth");
+        Bitmap bitmap2 = loadAugmentedImage("arucoMarker");
         if (bitmap == null) {
             return false;
         }
         augmentedImageDatabase = new AugmentedImageDatabase(session);
         augmentedImageDatabase.addImage("earth", bitmap);
+        augmentedImageDatabase.addImage("arucoMarker", bitmap2);
         config.setAugmentedImageDatabase(augmentedImageDatabase);
         return true;
     }
@@ -353,8 +368,8 @@ public class MainActivity extends AppCompatActivity {
      * Load images from the asset folder
      * @return Bitmap of the image in the asset folder
      */
-    private Bitmap loadAugmentedImage() {
-        try (InputStream is = getAssets().open("earth.jpg")) {
+    private Bitmap loadAugmentedImage(String imgName) {
+        try (InputStream is = getAssets().open(imgName+".jpg")) {
             return BitmapFactory.decodeStream(is);
         } catch (IOException e) {
             Log.e(TAG, "IO Exception", e);
