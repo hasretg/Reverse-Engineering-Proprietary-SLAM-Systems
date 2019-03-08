@@ -77,8 +77,8 @@ public final class FileManager {
         String header;
         float[] d_c = start.getCoordinateDiff(end.initCoord);
         float[] d_q = start.getQuaternionDiff(end.initQuater);
-        float[] d_std_c = start.getStdDeviationDiff(end.initCoordStdDev);
-        float[] d_std_q = start.getStdDeviationDiff(end.initQuaterStdDev);
+        float[] d_std_c = start.getStdDeviationElem(end.initCoordStdDev);
+        float[] d_std_q = start.getStdDeviationElem(end.initQuaterStdDev);
         String txt_data = ""+id+","+d_c[0]+","+d_c[1]+","+d_c[2]+","+d_std_c[0]+","+d_std_c[1]
                 +","+d_std_c[2]+","+d_q[0]+","+d_q[1]+","+d_q[2]+","+d_q[3]+","+d_std_q[0]
                 +","+d_std_q[1]+","+d_std_q[2]+","+d_std_q[3];
@@ -157,8 +157,6 @@ public final class FileManager {
         if(!poseFolder.exists())
             poseFolder.mkdirs();
     }
-
-
 
     /*
      * Checks if external storage is available for read and write
