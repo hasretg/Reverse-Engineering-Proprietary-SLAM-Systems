@@ -1,33 +1,29 @@
 package com.example.reverse_engineering_proprietary_slam_systems;
 
-import android.support.v4.content.res.TypedArrayUtils;
-import android.util.Log;
-
-import com.google.ar.core.Pose;
 import com.google.ar.sceneform.math.Quaternion;
 
 import java.util.Arrays;
 
 
-public class MathUtils {
+class MathUtils {
 
-    private int maxIter; // Maximum number of iterations for initializing a pose
+    private final int maxIter; // Maximum number of iterations for initializing a pose
     private int counter = 0;
 
     // Final initial coordinates of the start point
-    public float[] initCoord;
-    public float[] initCoordStdDev;
-    public Quaternion initQuater;
-    public float[] initQuaterStdDev;
+    float[] initCoord;
+    float[] initCoordStdDev;
+    Quaternion initQuater;
+    float[] initQuaterStdDev;
 
     // Class pose with 3D coordinate and 4D quaternion
-    private float[][] pose;
+    private final float[][] pose;
 
     /**
      * Constructor
      * @param maxIter defines the maximum initialization steps before fixing the initial pose
      */
-    public MathUtils(int maxIter){
+    MathUtils(int maxIter){
         this.maxIter = maxIter;
         pose = new float[7][maxIter];
     }
@@ -37,7 +33,7 @@ public class MathUtils {
      * @param coord2 is the 3D coordinate for adding to a new pose
      * @param quater2 is the 4D quaternion for adding to a new pose
      */
-    public boolean addCoord(float[] coord2, float[] quater2){
+    boolean addCoord(float[] coord2, float[] quater2){
 
         if(counter < maxIter) {
             pose[0][counter] = coord2[0];
@@ -49,17 +45,17 @@ public class MathUtils {
             pose[6][counter] = quater2[3];
 
             counter++;
-            return true;
+            return false;
         }else {
             setMedianAndStdDev();
-            return false;
+            return true;
         }
     }
 
     /**
      * Set a median pose from the array and compute its standard deviation
      */
-    public void setMedianAndStdDev()
+    private void setMedianAndStdDev()
     {
         initCoord = new float[]{median(pose[0]), median(pose[1]), median(pose[2])};
         initQuater = new Quaternion(median(pose[3]), median(pose[4]), median(pose[5]), median(pose[6]));
@@ -93,17 +89,16 @@ public class MathUtils {
         float sum = 0;
         float newSum = 0;
 
-        for (int i = 0; i<arr.length; i++){
-            sum += arr[i];
+        for (float anArr : arr) {
+            sum += anArr;
         }
         float mean = sum / (arr.length-1);
 
-        for (int j = 0; j<arr.length; j++){
-            newSum += ((arr[j] - mean) * (arr[j] - mean));
+        for (float anArr : arr) {
+            newSum += ((anArr - mean) * (anArr - mean));
         }
-        float standardDev = (float)(Math.sqrt((newSum) / (arr.length)));
 
-        return standardDev;
+        return (float)(Math.sqrt((newSum) / (arr.length)));
     }
 
     /**
@@ -111,7 +106,7 @@ public class MathUtils {
      * @param arr is a 3D translation vector
      * @return relative translation with respect to the initial position
      */
-    public float[] getRelativeTranslation(float[] arr){
+    float[] getRelativeTranslation(float[] arr){
 
         float[] tmp = new float[arr.length];
         for(int i=0; i<arr.length; i++){
@@ -125,7 +120,7 @@ public class MathUtils {
      * @param arr is a 4D rotation vector (quaternion)
      * @return relative orientation with respect to the initial orientation
      */
-    public float[] getRelativeOrientation(float[] arr){
+    float[] getRelativeOrientation(float[] arr){
 
         Quaternion arrQuater = new Quaternion(arr[0], arr[1], arr[2], arr[3]);
         Quaternion tmp = Quaternion.multiply(arrQuater, initQuater.inverted());
@@ -135,11 +130,11 @@ public class MathUtils {
     }
 
     /**
-     *
-     * @param end
-     * @return
+     * Get residual of the coordinates
+     * @param end is the coordinates from the same 3D point (same target)
+     * @return difference of the 3D coordinate after closing loop
      */
-    public float[] getCoordinateDiff(float[] end){
+    float[] getCoordinateDiff(float[] end){
 
         float[] diff = new float[end.length];
         for(int i=0; i<end.length; i++){
@@ -149,11 +144,11 @@ public class MathUtils {
     }
 
     /**
-     *
-     * @param end
-     * @return
+     * Get residuals of the quaternion
+     * @param end is the quaternion from the same 3D point (same target)
+     * @return difference of the 4D quaternion after closing loop
      */
-    public float[] getQuaternionDiff(Quaternion end){
+    float[] getQuaternionDiff(Quaternion end){
 
         float[] diff = new float[4];
         diff[0] = end.x - initQuater.x;
@@ -164,7 +159,12 @@ public class MathUtils {
         return diff;
     }
 
-    public float[] getStdDeviationElem(float[] end){
+    /**
+     * Get mean standard deviation of each element (coordinates or quaternions)
+     * @param end is a vector of the standard deviations(coordinates or quaternion)
+     * @return mean standard deviation of each element after closing loop
+     */
+    float[] getStdDeviationElem(float[] end){
         float[] devElem = new float[end.length];
         if(devElem.length == 4){
             for(int i=0; i<end.length; i++){

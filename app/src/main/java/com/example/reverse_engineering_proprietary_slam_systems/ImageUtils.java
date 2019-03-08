@@ -9,9 +9,9 @@ import android.util.Log;
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 
-public final class ImageUtils {
+final class ImageUtils {
 
-    public static byte[] imageToByteArray(Image image) {
+    static byte[] imageToByteArray(Image image) {
         byte[] data = null;
         Log.i("ImageUtils_test", "" + image.getFormat() + "  " + image.getHeight());
         if (image.getFormat() == ImageFormat.JPEG) {

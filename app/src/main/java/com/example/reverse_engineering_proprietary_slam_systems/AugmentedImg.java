@@ -3,17 +3,17 @@ package com.example.reverse_engineering_proprietary_slam_systems;
 import com.google.ar.core.AugmentedImage;
 import com.google.ar.core.Pose;
 
-public class AugmentedImg {
+class AugmentedImg {
 
 
-    private AugmentedImage augmentedImage;
-    private Pose pose;
-    private float[] coordinates;
-    private float[] quaternion;
-    private float[] size;
+    private final AugmentedImage augmentedImage;
+    private final Pose pose;
+    private final float[] coordinates;
+    private final float[] quaternion;
+    private final float[] size;
 
 
-    public AugmentedImg(AugmentedImage augmentedImage){
+    AugmentedImg(AugmentedImage augmentedImage){
         this.augmentedImage = augmentedImage;
         this.pose = augmentedImage.getCenterPose();
         this.coordinates = augmentedImage.getCenterPose().getTranslation();
@@ -21,23 +21,23 @@ public class AugmentedImg {
         this.size = new float[]{augmentedImage.getExtentX(), augmentedImage.getExtentZ()};
     }
 
-    public AugmentedImage getAugmentedImage() {
+    AugmentedImage getAugmentedImage() {
         return augmentedImage;
     }
 
-    public Pose getPose() {
+    Pose getPose() {
         return pose;
     }
 
-    public float[] getCoordinates() {
+    float[] getCoordinates() {
         return coordinates;
     }
 
-    public float[] getQuaternion() {
+    float[] getQuaternion() {
         return quaternion;
     }
 
-    public float[] getSize() {
+    float[] getSize() {
         return size;
     }
 }

@@ -3,8 +3,6 @@ package com.example.reverse_engineering_proprietary_slam_systems;
 import android.os.Environment;
 import android.util.Log;
 
-import com.google.ar.sceneform.math.MathHelper;
-
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -12,56 +10,44 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 
+final class FileManager {
 
-public final class FileManager {
+    private final File parentFolder;
 
-    private static String TAG = "FileManager";
-
-    private File parentFolder;
-
-    private File imgFolder;
-    private File imgSubFolder;
-    private File imgFile;
+    private final File imgFolder;
+    private final File imgSubFolder;
     private String poseTextFile="";
 
-    private File poseFolder;
-    private File poseFile;
-
-    private File loopClosingFile;
-
-    private String fileId;
-
-    private String STORAGE_PATH = Environment.getExternalStorageDirectory()
-            + File.separator + "SLAM_data";
+    private final File poseFolder;
 
     private FileOutputStream myFileOutputStream;
     private OutputStreamWriter myOutputStreamWriter;
 
-    public FileManager(){
+    FileManager(){
+        String STORAGE_PATH = Environment.getExternalStorageDirectory()
+                + File.separator + "SLAM_data";
         parentFolder = new File(STORAGE_PATH);
         imgFolder = new File(STORAGE_PATH, "frameFolder");
         poseFolder = new File(STORAGE_PATH, "poseFolder");
-        fileId = String.valueOf(System.currentTimeMillis());
+        String fileId = String.valueOf(System.currentTimeMillis());
         imgSubFolder = new File(imgFolder, fileId);
         createDirectory();
 
         try {
-            poseFile = new File(poseFolder, fileId + ".txt");
-            poseFile.createNewFile();
+            File poseFile = new File(poseFolder, fileId + ".txt");
             myFileOutputStream = new FileOutputStream(poseFile);
             myOutputStreamWriter = new OutputStreamWriter(myFileOutputStream);
-            poseTextFile += "time,sizeX,sizeY,p_x,p_y,f_x,f_y,pos_X,pos_Y,pos_Z,q_1,q_2,q_3,q_4 \n";
+            poseTextFile += "time,sizeX,sizeY,p_x,p_y,f_x,f_y,pos_X,pos_Y,pos_Z,q_x,q_y,q_z,q_w," +
+                    "imgID,img_x,img_y,img_z,img_qx,img_qy,img_qz,img_qw\n";
 
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public void saveImage(String imgName, byte[] data) {
+    void saveImage(String imgName, byte[] data) {
         try {
-            imgFile = new File(imgSubFolder, imgName + ".jpg");
+            File imgFile = new File(imgSubFolder, imgName + ".jpg");
             BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(imgFile));
             bos.write(data);
             bos.flush();
@@ -71,9 +57,9 @@ public final class FileManager {
         }
     }
 
-    public void writeLoopClosingResult(MathUtils start, MathUtils end, long id){
+    void writeLoopClosingResult(MathUtils start, MathUtils end, long id){
 
-        loopClosingFile = new File(poseFolder, "loopClosing_Result.txt");
+        File loopClosingFile = new File(poseFolder, "loopClosing_Result.txt");
         String header;
         float[] d_c = start.getCoordinateDiff(end.initCoord);
         float[] d_q = start.getQuaternionDiff(end.initQuater);
@@ -84,7 +70,7 @@ public final class FileManager {
                 +","+d_std_q[1]+","+d_std_q[2]+","+d_std_q[3];
 
         if(!loopClosingFile.exists()) {
-            header = "id,d_x,d_y,d_z,d_qx,d_qy,d_qz,d_qz,d_qw \n";
+            header = "id,d_x,d_y,d_z,d_qx,d_qy,d_qz,d_qz,d_qw\n";
         }else{
             header = "\n";
         }
@@ -104,7 +90,7 @@ public final class FileManager {
         }
     }
 
-    public void writePoseInfo(long currTime, float[] camTrans, float[] camRot, int[] imgDim, float[] focalLength, float[] princPt, int frameId){
+    void writePoseInfo(long currTime, float[] camTrans, float[] camRot, int[] imgDim, float[] focalLength, float[] princPt, int frameId){
 
         String str_line = ""+currTime+","+imgDim[0]+","+imgDim[1]+","+princPt[0]+","+princPt[1]
                 +","+focalLength[0]+","+focalLength[1]+","+camTrans[0]+","+camTrans[1]
@@ -113,17 +99,17 @@ public final class FileManager {
         poseTextFile += str_line;
     }
 
-    public void writePosterInfo(String name, float[] size, float[] coord, float[] quat){
+    void writePosterInfo(String name, float[] size, float[] coord, float[] quat){
         String str_line = ","+name+","+size[0]+","+size[1]+","+coord[0]+","+coord[1]+","+coord[2]
                 +","+quat[0]+","+quat[1]+","+quat[2]+","+quat[3];
         poseTextFile += str_line;
     }
 
-    public void finishTextline(){
+    void finishTextline(){
         poseTextFile += "\n";
     }
 
-    public String savePose() {
+    String savePose() {
         if (isExternalStorageWritable()) {
             try {
                 myOutputStreamWriter.write(poseTextFile);
@@ -141,6 +127,7 @@ public final class FileManager {
                 return "Exception: " + t.toString();
             }
         } else {
+            String TAG = "FileManager";
             Log.e(TAG, "External storage not available to store data!!");
         }
         return "Error in FileManager.savePose()";

@@ -57,9 +57,9 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean mUserRequestedInstall = true;
 
-    FileManager myFileManager;
-    MathUtils mathUtilStart;
-    MathUtils mathUtilEnd;
+    private FileManager myFileManager;
+    private MathUtils mathUtilStart;
+    private MathUtils mathUtilEnd;
 
     private enum STATUS {
         START,
@@ -198,7 +198,7 @@ public class MainActivity extends AppCompatActivity {
                     if (augmentedImgs.containsKey("earth")) {
                         AugmentedImg myAugmImg = augmentedImgs.get("earth");
                         assert myAugmImg != null;
-                        if (!mathUtilStart.addCoord(myAugmImg.getCoordinates(), myAugmImg.getQuaternion())) {
+                        if (mathUtilStart.addCoord(myAugmImg.getCoordinates(), myAugmImg.getQuaternion())) {
 
                             Toast.makeText(this, "Initialization successfull!", Toast.LENGTH_LONG);
                             myStatus = STATUS.TRACKING;
@@ -220,7 +220,7 @@ public class MainActivity extends AppCompatActivity {
                     if (augmentedImgs.containsKey("earth")) {
                         AugmentedImg myAugmImg = augmentedImgs.get("earth");
                         assert myAugmImg != null;
-                        if (!mathUtilEnd.addCoord(myAugmImg.getCoordinates(), myAugmImg.getQuaternion())) {
+                        if (mathUtilEnd.addCoord(myAugmImg.getCoordinates(), myAugmImg.getQuaternion())) {
                             Log.i(TAG, "End coord: " + mathUtilEnd.initCoord[0] + " ; " + mathUtilEnd.initCoord[1] + " ; " + mathUtilEnd.initCoord[2]);
                             Log.i(TAG, "End coord std dev: " + mathUtilEnd.initCoordStdDev[0] + " ; " + mathUtilEnd.initCoordStdDev[1] + " ; " + mathUtilEnd.initCoordStdDev[2]);
                             Log.i(TAG, "End quat: " + mathUtilEnd.initQuater.x + " ; " + mathUtilEnd.initQuater.y + " ; " + mathUtilEnd.initQuater.z + " ; " + mathUtilEnd.initQuater.w);
@@ -253,7 +253,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Set variables new which needs to be changed for a new measurement session
      */
-    public void startNewMeasurement(){
+    private void startNewMeasurement(){
         // Store timestamp when application is executed as start time and set status
         startTime = System.currentTimeMillis();
 
@@ -368,7 +368,7 @@ public class MainActivity extends AppCompatActivity {
         AugmentedImageDatabase augmentedImageDatabase;
         Bitmap bitmap = loadAugmentedImage("earth");
         Bitmap bitmap2 = loadAugmentedImage("arucoMarker");
-        if (bitmap == null) {
+        if ((bitmap == null) || (bitmap2 == null)){
             return false;
         }
         augmentedImageDatabase = new AugmentedImageDatabase(session);
