@@ -3,6 +3,8 @@ package com.example.reverse_engineering_proprietary_slam_systems;
 import android.os.Environment;
 import android.util.Log;
 
+import com.google.ar.sceneform.math.MathHelper;
+
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -24,6 +26,8 @@ public final class FileManager {
 
     private File poseFolder;
     private File poseFile;
+
+    private File loopClosingFile;
 
     private String fileId;
 
@@ -47,6 +51,7 @@ public final class FileManager {
             myFileOutputStream = new FileOutputStream(poseFile);
             myOutputStreamWriter = new OutputStreamWriter(myFileOutputStream);
             poseTextFile += "time,sizeX,sizeY,p_x,p_y,f_x,f_y,pos_X,pos_Y,pos_Z,q_1,q_2,q_3,q_4 \n";
+
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -61,6 +66,39 @@ public final class FileManager {
             bos.write(data);
             bos.flush();
             bos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void writeLoopClosingResult(MathUtils start, MathUtils end, long id){
+
+        loopClosingFile = new File(poseFolder, "loopClosing_Result.txt");
+        String header;
+        float[] d_c = start.getCoordinateDiff(end.initCoord);
+        float[] d_q = start.getQuaternionDiff(end.initQuater);
+        float[] d_std_c = start.getStdDeviationDiff(end.initCoordStdDev);
+        float[] d_std_q = start.getStdDeviationDiff(end.initQuaterStdDev);
+        String txt_data = ""+id+","+d_c[0]+","+d_c[1]+","+d_c[2]+","+d_std_c[0]+","+d_std_c[1]
+                +","+d_std_c[2]+","+d_q[0]+","+d_q[1]+","+d_q[2]+","+d_q[3]+","+d_std_q[0]
+                +","+d_std_q[1]+","+d_std_q[2]+","+d_std_q[3];
+
+        if(!loopClosingFile.exists()) {
+            header = "id,d_x,d_y,d_z,d_qx,d_qy,d_qz,d_qz,d_qw \n";
+        }else{
+            header = "\n";
+        }
+        try {
+            FileOutputStream myFileOutputStream = new FileOutputStream(loopClosingFile, true);
+            OutputStreamWriter myFileOutputStreamWriter = new OutputStreamWriter(myFileOutputStream);
+            myFileOutputStreamWriter.write(header+txt_data);
+            myFileOutputStreamWriter.flush();
+            myFileOutputStreamWriter.close();
+            myFileOutputStream.flush();
+            myFileOutputStream.close();
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -119,6 +157,8 @@ public final class FileManager {
         if(!poseFolder.exists())
             poseFolder.mkdirs();
     }
+
+
 
     /*
      * Checks if external storage is available for read and write

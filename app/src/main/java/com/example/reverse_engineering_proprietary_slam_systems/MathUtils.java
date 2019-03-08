@@ -133,4 +133,50 @@ public class MathUtils {
 
         return new float[]{tmp.x, tmp.y, tmp.z, tmp.w};
     }
+
+    /**
+     *
+     * @param end
+     * @return
+     */
+    public float[] getCoordinateDiff(float[] end){
+
+        float[] diff = new float[end.length];
+        for(int i=0; i<end.length; i++){
+            diff[i] = end[i] - initCoord[i];
+        }
+        return diff;
+    }
+
+    /**
+     *
+     * @param end
+     * @return
+     */
+    public float[] getQuaternionDiff(Quaternion end){
+
+        float[] diff = new float[4];
+        diff[0] = end.x - initQuater.x;
+        diff[1] = end.y - initQuater.y;
+        diff[2] = end.z - initQuater.z;
+        diff[3] = end.w - initQuater.w;
+
+        return diff;
+    }
+
+    public float[] getStdDeviationElem(float[] end){
+        float[] devElem = new float[end.length];
+        if(devElem.length == 4){
+            for(int i=0; i<end.length; i++){
+                devElem[i] = (end[i] + initQuaterStdDev[i])/(2f);
+            }
+        }else if(devElem.length == 3){
+            for(int i=0; i<end.length; i++){
+                devElem[i] = (end[i] + initQuaterStdDev[i])/(2f);
+            }
+        }
+
+        return devElem;
+
+    }
 }

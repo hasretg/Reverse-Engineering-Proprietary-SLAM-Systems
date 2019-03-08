@@ -228,6 +228,7 @@ public class MainActivity extends AppCompatActivity {
                             myStatus = STATUS.START;
                             myStatusTxt.setText("STATUS: Start");
                             initButton.setVisibility(View.VISIBLE);
+                            myFileManager.writeLoopClosingResult(mathUtilStart, mathUtilEnd, startTime);
                             startNewMeasurement();
                         }
                     }
