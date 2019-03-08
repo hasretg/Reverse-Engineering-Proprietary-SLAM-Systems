@@ -26,6 +26,7 @@ public final class FileManager {
     private File poseFile;
 
     private String fileId;
+    private int imgId = 1;
 
     private String STORAGE_PATH = Environment.getExternalStorageDirectory()
             + File.separator + "SLAM_data";
@@ -46,9 +47,7 @@ public final class FileManager {
             poseFile.createNewFile();
             myFileOutputStream = new FileOutputStream(poseFile);
             myOutputStreamWriter = new OutputStreamWriter(myFileOutputStream);
-            poseTextFile += "time         pos_X         pos_Y         pos_Z" +
-                    "         q_1           q_2           q_3" +
-                    "          q_4 \n";
+            poseTextFile += "time,pos_X,pos_Y,pos_Z,q_1,q_2,q_3,q_4 \n";
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -69,11 +68,11 @@ public final class FileManager {
         }
     }
 
-    public void writeNewPose(long currTime, float[] camTrans, float[] camRot){
+    public void writeNewLine(long currTime, float[] camTrans, float[] camRot, int[] imgDim, float[] focalLength, float[] princPt, int frameId){
 
-        String str_line = String.format("%1$07d %2$13f %3$13f %4$13f %5$13f %6$13f %7$13f %8$13f",
-                currTime, camTrans[0], camTrans[1], camTrans[2], camRot[0], camRot[1], camRot[2],
-                camRot[3]);
+        String str_line = ""+currTime+","+imgDim[0]+","+imgDim[1]+","+princPt[0]+","+princPt[1]
+                +","+focalLength[0]+","+focalLength[1]+","+camTrans[0]+","+camTrans[1]
+                +","+camTrans[2]+","+camRot[0]+","+frameId;
         poseTextFile += str_line + "\n";
     }
 

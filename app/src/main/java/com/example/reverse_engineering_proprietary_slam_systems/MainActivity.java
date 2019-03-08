@@ -11,7 +11,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.util.StateSet;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -20,6 +19,7 @@ import android.widget.Toast;
 import com.google.ar.core.ArCoreApk;
 import com.google.ar.core.AugmentedImage;
 import com.google.ar.core.AugmentedImageDatabase;
+import com.google.ar.core.Camera;
 import com.google.ar.core.Config;
 import com.google.ar.core.Frame;
 import com.google.ar.core.Session;
@@ -35,6 +35,7 @@ import com.google.ar.sceneform.rendering.ModelRenderable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
+import java.util.HashMap;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -45,15 +46,14 @@ public class MainActivity extends AppCompatActivity {
     private MyArFragment myArFragment;
     private ModelRenderable myRenderable;
     private Session mySession;
+    private int frameID = 1;
 
     private Button initButton;
-    private boolean isInitialized = false;
     private Button captureButton;
     private boolean captBtnClicked = false;
     private TextView myStatusTxt;
 
     private boolean mUserRequestedInstall = true;
-    private boolean shouldAddModel;
 
     FileManager myFileManager;
     MathUtils mathUtilStart;
@@ -82,8 +82,6 @@ public class MainActivity extends AppCompatActivity {
 
         // Store timestamp when application is executed as start time and set status
         startTime = System.currentTimeMillis();
-
-        shouldAddModel = true;
 
         // New instance of class MathUtils. Set max iteration number for the initialization to 10
         mathUtilStart = new MathUtils(10);
@@ -114,26 +112,23 @@ public class MainActivity extends AppCompatActivity {
             Log.i(TAG, "Test7");
             if (myStatus == STATUS.START)
                 Log.i(TAG, "Test8");
-                myStatusTxt.setText("STATUS: Initialization");
-                myStatus = STATUS.INITIALIZATION;
-                initButton.setVisibility(View.GONE);
+            myStatusTxt.setText("STATUS: Initialization");
+            myStatus = STATUS.INITIALIZATION;
+            initButton.setVisibility(View.GONE);
         });
 
         /**
          * Handle camera pose and image capture
          */
         captureButton.setOnClickListener(v -> {
-            Log.i(TAG, "Test6");
             if (myStatus == STATUS.TRACKING) {
 
                 captBtnClicked = !captBtnClicked;
 
                 if (captBtnClicked) {
-                    Log.i(TAG, "Test4");
                     myFileManager = new FileManager();
                     captureButton.setText("STOP Capture Pose");
                 } else {
-                    Log.i(TAG, "Test5");
                     String poseInfo = myFileManager.savePose();
                     Log.i(TAG, poseInfo);
                     captureButton.setText("START Capture Pose");
@@ -151,24 +146,38 @@ public class MainActivity extends AppCompatActivity {
 
             // Get the current frame
             Frame currFrame = myArFragment.getArSceneView().getArFrame();
-            float[] tmpQ = currFrame.getCamera().getPose().getRotationQuaternion();
-            //Log.i(TAG, "Curr Quater: " + tmpQ[0] + " ; " + tmpQ[1] + " ; " + tmpQ[2]  + " ; " + tmpQ[3] );
+            HashMap<String, AugmentedImg> augmentedImgs = new HashMap<>();
+
+            Collection<AugmentedImage> augmentedImages = currFrame.getUpdatedTrackables(AugmentedImage.class);
+            for (AugmentedImage augmentedImage : augmentedImages) {
+                if (augmentedImage.getTrackingState() == TrackingState.TRACKING) {
+                    augmentedImgs.put(augmentedImage.getName(), new AugmentedImg(augmentedImage));
+                }
+            }
 
             switch (myStatus) {
                 case TRACKING:
+
                     if (captBtnClicked) {
+                        Camera currCamera = currFrame.getCamera();
                         long currTime = System.currentTimeMillis() - startTime;
 
-                        float[] currCamTrans = currFrame.getCamera().getPose().getTranslation();
-                        float[] currCamRot = currFrame.getCamera().getPose().getRotationQuaternion();
+                        float[] currCamTrans = currCamera.getPose().getTranslation();
+                        float[] currCamRot = currCamera.getPose().getRotationQuaternion();
+                        int[] imgDim = currCamera.getImageIntrinsics().getImageDimensions();
+                        float[] focalLength = currCamera.getImageIntrinsics().getFocalLength();
+                        float[] principlePoint = currCamera.getImageIntrinsics().getPrincipalPoint();
 
-                        myFileManager.writeNewPose(currTime, mathUtilStart.getRelativeTranslation(currCamTrans),
-                                mathUtilStart.getRelativeOrientation(currCamRot));
+                        myFileManager.writeNewLine(currTime,
+                                mathUtilStart.getRelativeTranslation(currCamTrans),
+                                mathUtilStart.getRelativeOrientation(currCamRot),
+                                imgDim, focalLength, principlePoint, frameID);
                         try {
                             Image currImg = currFrame.acquireCameraImage();
                             byte[] jpegData = ImageUtils.imageToByteArray(currImg);
-                            myFileManager.saveImage("img_" + currTime, jpegData);
+                            myFileManager.saveImage("img_" + frameID, jpegData);
                             currImg.close();
+                            frameID++;
                         } catch (NotYetAvailableException e) {
                             e.printStackTrace();
                         }
@@ -176,51 +185,38 @@ public class MainActivity extends AppCompatActivity {
                     break;
 
                 case INITIALIZATION:
-                    Collection<AugmentedImage> augmentedImages = currFrame.getUpdatedTrackables(AugmentedImage.class);
-                    for (AugmentedImage augmentedImage : augmentedImages) {
-                        if (augmentedImage.getTrackingState() == TrackingState.TRACKING) {
-                            if (augmentedImage.getName().equals("earth") && shouldAddModel) {
-                                float[] initCoord = augmentedImage.getCenterPose().getTranslation();
-                                float[] initQuat = currFrame.getCamera().getPose().getRotationQuaternion();
 
-                                if (!mathUtilStart.addCoord(initCoord, initQuat)) {
-                                    Toast.makeText(this, "Initialization successfull!", Toast.LENGTH_LONG);
-                                    myStatus = STATUS.TRACKING;
-                                    myStatusTxt.setText("STATUS: tracking");
-                                    captureButton.setVisibility(View.VISIBLE);
-                                    myArFragment.addTrackableNodeToScene(augmentedImage.createAnchor(augmentedImage.getCenterPose()), myRenderable);
-                                    //shouldAddModel = false;
-                                    Log.i(TAG, "Init coord: " + mathUtilStart.initCoord[0] + " ; " + mathUtilStart.initCoord[1] + " ; " + mathUtilStart.initCoord[2]);
-                                    Log.i(TAG, "coord std dev: " + mathUtilStart.initCoordStdDev[0] + " ; " + mathUtilStart.initCoordStdDev[1] + " ; " + mathUtilStart.initCoordStdDev[2]);
+                    if (augmentedImgs.containsKey("earth")) {
+                        AugmentedImg myAugmImg = augmentedImgs.get("earth");
+                        if (!mathUtilStart.addCoord(myAugmImg.getCoordinates(), myAugmImg.getQuaternion())) {
 
-                                    Log.i(TAG, "Init quat: " + mathUtilStart.initQuater.x + " ; " + mathUtilStart.initQuater.y + " ; " + mathUtilStart.initQuater.z + " ; " + mathUtilStart.initQuater.w);
-                                    Log.i(TAG, "Quat std dev: " + mathUtilStart.initQuaterStdDev[0] + " ; " + mathUtilStart.initQuaterStdDev[1] + " ; " + mathUtilStart.initQuaterStdDev[2] + " ; " + mathUtilStart.initQuaterStdDev[3]);
+                            Toast.makeText(this, "Initialization successfull!", Toast.LENGTH_LONG);
+                            myStatus = STATUS.TRACKING;
+                            myStatusTxt.setText("STATUS: tracking");
+                            captureButton.setVisibility(View.VISIBLE);
+                            myArFragment.addTrackableNodeToScene(myAugmImg.getAugmentedImage().createAnchor(myAugmImg.getPose()), myRenderable);
+                            //shouldAddModel = false;
+                            Log.i(TAG, "Init coord: " + mathUtilStart.initCoord[0] + " ; " + mathUtilStart.initCoord[1] + " ; " + mathUtilStart.initCoord[2]);
+                            Log.i(TAG, "coord std dev: " + mathUtilStart.initCoordStdDev[0] + " ; " + mathUtilStart.initCoordStdDev[1] + " ; " + mathUtilStart.initCoordStdDev[2]);
 
-                                }
-
-                            }
+                            Log.i(TAG, "Init quat: " + mathUtilStart.initQuater.x + " ; " + mathUtilStart.initQuater.y + " ; " + mathUtilStart.initQuater.z + " ; " + mathUtilStart.initQuater.w);
+                            Log.i(TAG, "Quat std dev: " + mathUtilStart.initQuaterStdDev[0] + " ; " + mathUtilStart.initQuaterStdDev[1] + " ; " + mathUtilStart.initQuaterStdDev[2] + " ; " + mathUtilStart.initQuaterStdDev[3]);
                         }
                     }
                     break;
 
                 case CLOSELOOP:
-                    Collection<AugmentedImage> augmentedImages2 = currFrame.getUpdatedTrackables(AugmentedImage.class);
-                    for (AugmentedImage augmentedImage2 : augmentedImages2) {
-                        if (augmentedImage2.getTrackingState() == TrackingState.TRACKING) {
-                            if (augmentedImage2.getName().equals("earth")) {
 
-                                float[] initCoord = augmentedImage2.getCenterPose().getTranslation();
-                                float[] initQuat = currFrame.getCamera().getPose().getRotationQuaternion();
-                                if (!mathUtilEnd.addCoord(initCoord, initQuat)) {
-                                    Log.i(TAG, "End coord: " + mathUtilEnd.initCoord[0] + " ; " + mathUtilEnd.initCoord[1] + " ; " + mathUtilEnd.initCoord[2]);
-                                    Log.i(TAG, "End coord std dev: " + mathUtilEnd.initCoordStdDev[0] + " ; " + mathUtilEnd.initCoordStdDev[1] + " ; " + mathUtilEnd.initCoordStdDev[2]);
-                                    Log.i(TAG, "End quat: " + mathUtilEnd.initQuater.x + " ; " + mathUtilEnd.initQuater.y + " ; " + mathUtilEnd.initQuater.z + " ; " + mathUtilEnd.initQuater.w);
-                                    Log.i(TAG, "End Quat std dev: " + mathUtilEnd.initQuaterStdDev[0] + " ; " + mathUtilEnd.initQuaterStdDev[1] + " ; " + mathUtilEnd.initQuaterStdDev[2] + " ; " + mathUtilEnd.initQuaterStdDev[3]);
-                                    myStatus = STATUS.START;
-                                    myStatusTxt.setText("STATUS: Start");
-                                    initButton.setVisibility(View.VISIBLE);
-                                }
-                            }
+                    if (augmentedImgs.containsKey("earth")) {
+                        AugmentedImg myAugmImg = augmentedImgs.get("earth");
+                        if (!mathUtilStart.addCoord(myAugmImg.getCoordinates(), myAugmImg.getQuaternion())) {
+                            Log.i(TAG, "End coord: " + mathUtilEnd.initCoord[0] + " ; " + mathUtilEnd.initCoord[1] + " ; " + mathUtilEnd.initCoord[2]);
+                            Log.i(TAG, "End coord std dev: " + mathUtilEnd.initCoordStdDev[0] + " ; " + mathUtilEnd.initCoordStdDev[1] + " ; " + mathUtilEnd.initCoordStdDev[2]);
+                            Log.i(TAG, "End quat: " + mathUtilEnd.initQuater.x + " ; " + mathUtilEnd.initQuater.y + " ; " + mathUtilEnd.initQuater.z + " ; " + mathUtilEnd.initQuater.w);
+                            Log.i(TAG, "End Quat std dev: " + mathUtilEnd.initQuaterStdDev[0] + " ; " + mathUtilEnd.initQuaterStdDev[1] + " ; " + mathUtilEnd.initQuaterStdDev[2] + " ; " + mathUtilEnd.initQuaterStdDev[3]);
+                            myStatus = STATUS.START;
+                            myStatusTxt.setText("STATUS: Start");
+                            initButton.setVisibility(View.VISIBLE);
                         }
                     }
                     break;
