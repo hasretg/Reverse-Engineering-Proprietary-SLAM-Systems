@@ -1,7 +1,11 @@
 package com.example.reverse_engineering_proprietary_slam_systems;
 
+import android.util.Log;
+
 import com.google.ar.sceneform.math.Quaternion;
 
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.Arrays;
 
 
@@ -123,7 +127,9 @@ class MathUtils {
     float[] getRelativeOrientation(float[] arr){
 
         Quaternion arrQuater = new Quaternion(arr[0], arr[1], arr[2], arr[3]);
-        Quaternion tmp = Quaternion.multiply(arrQuater, initQuater.inverted());
+        Quaternion tmp = Quaternion.multiply(arrQuater.normalized(), initQuater.inverted());
+        Log.i("MathUtils", "Both quats: "+initQuater.toString()+"  ; " +arrQuater.toString());
+        Log.i("MathUtils", "Result quad: "+tmp.toString());
         //tmp = Quaternion.multiply(tmp, new Quaternion(0f, 0f, 1f, 0f));
 
         return new float[]{tmp.x, tmp.y, tmp.z, tmp.w};
@@ -178,5 +184,11 @@ class MathUtils {
 
         return devElem;
 
+    }
+
+    static BigDecimal round(float d, int decimalPlace) {
+        BigDecimal bd = new BigDecimal(Float.toString(d));
+        bd = bd.setScale(decimalPlace, BigDecimal.ROUND_HALF_UP);
+        return bd;
     }
 }

@@ -40,6 +40,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 
+
 public class MainActivity extends AppCompatActivity {
 
     /* Define global variables */
@@ -54,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
     private Button captureButton;
     private boolean captBtnClicked = false;
     private TextView myStatusTxt;
+    private TextView myinfoTxt;
 
     private boolean mUserRequestedInstall = true;
 
@@ -68,6 +70,19 @@ public class MainActivity extends AppCompatActivity {
         CLOSELOOP,
     }
 
+
+    ///////////////
+
+    // Set this string to the URL created when publishing your Shared anchor service in the Sharing sample.
+    private static final String SharingAnchorsServiceUrl = "http://microsoft-slam.azurewebsites.net/api/anchors";
+    // Set this string to the account ID provided for the Azure Spatial Service resource.
+    private static final String SpatialAnchorsAccountId = "99c86ade-1776-48a0-8496-37d1032e389b";
+
+    // Set this string to the account key provided for the Azure Spatial Service resource.
+    private static final String SpatialAnchorsAccountKey = "skTVoXizz/Sua5MSiE7GfKwph07iOxkVjglO96Q7VeU=";
+
+    ///////////////
+
     private STATUS myStatus;
 
     @Override
@@ -77,8 +92,11 @@ public class MainActivity extends AppCompatActivity {
         // Defining elements from the UI
         myArFragment = (MyArFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.myArFrag);
+
         captureButton = findViewById(R.id.captureButton);
         captureButton.setVisibility(View.GONE);
+        myinfoTxt = findViewById(R.id.infoText);
+        myinfoTxt.setVisibility(View.GONE);
         initButton = findViewById(R.id.initButton);
         myStatusTxt = findViewById(R.id.statusText);
 
@@ -97,18 +115,22 @@ public class MainActivity extends AppCompatActivity {
         /*
          * When plane in AR recognized and taped, create a sphere at the taped location
          */
-        myArFragment.setOnTapArPlaneListener((hitResult, plane, motionEvent) ->
-                myArFragment.addAnchorNodeToScene(hitResult.createAnchor(), myRenderable));
+        myArFragment.setOnTapArPlaneListener((hitResult, plane, motionEvent) -> {
+            myArFragment.addAnchorNodeToScene(hitResult.createAnchor(), myRenderable);
+        });
 
         /*
          * Set to initialization mode when button is clicked and current status is START
          */
         initButton.setOnClickListener(v -> {
-            if (myStatus == STATUS.START)
-            myStatusTxt.setText("STATUS: Initialization");
+            if (myStatus == STATUS.START) {
+                myStatusTxt.setText("STATUS: Initialization");
+                myinfoTxt.setVisibility(View.GONE);
+            }
             myStatus = STATUS.INITIALIZATION;
             initButton.setVisibility(View.GONE);
         });
+
 
         /*
          * Handle camera pose and image capture
@@ -172,9 +194,9 @@ public class MainActivity extends AppCompatActivity {
 
                         Iterator it = augmentedImgs.entrySet().iterator();
                         while (it.hasNext()) {
-                            Map.Entry pair = (Map.Entry)it.next();
-                            String myKey = (String)pair.getKey();
-                            AugmentedImg myImg = (AugmentedImg)pair.getValue();
+                            Map.Entry pair = (Map.Entry) it.next();
+                            String myKey = (String) pair.getKey();
+                            AugmentedImg myImg = (AugmentedImg) pair.getValue();
                             myFileManager.writePosterInfo(myKey, myImg.getSize(),
                                     myImg.getCoordinates(), myImg.getQuaternion());
                             it.remove();
@@ -198,7 +220,7 @@ public class MainActivity extends AppCompatActivity {
                     if (augmentedImgs.containsKey("earth")) {
                         AugmentedImg myAugmImg = augmentedImgs.get("earth");
                         assert myAugmImg != null;
-                        if (mathUtilStart.addCoord(myAugmImg.getCoordinates(), myAugmImg.getQuaternion())) {
+                        if (mathUtilStart.addCoord(myAugmImg.getCoordinates(), currFrame.getCamera().getPose().getRotationQuaternion())) {
 
                             Toast.makeText(this, "Initialization successfull!", Toast.LENGTH_LONG);
                             myStatus = STATUS.TRACKING;
@@ -220,7 +242,7 @@ public class MainActivity extends AppCompatActivity {
                     if (augmentedImgs.containsKey("earth")) {
                         AugmentedImg myAugmImg = augmentedImgs.get("earth");
                         assert myAugmImg != null;
-                        if (mathUtilEnd.addCoord(myAugmImg.getCoordinates(), myAugmImg.getQuaternion())) {
+                        if (mathUtilEnd.addCoord(myAugmImg.getCoordinates(), currFrame.getCamera().getPose().getRotationQuaternion())) {
                             Log.i(TAG, "End coord: " + mathUtilEnd.initCoord[0] + " ; " + mathUtilEnd.initCoord[1] + " ; " + mathUtilEnd.initCoord[2]);
                             Log.i(TAG, "End coord std dev: " + mathUtilEnd.initCoordStdDev[0] + " ; " + mathUtilEnd.initCoordStdDev[1] + " ; " + mathUtilEnd.initCoordStdDev[2]);
                             Log.i(TAG, "End quat: " + mathUtilEnd.initQuater.x + " ; " + mathUtilEnd.initQuater.y + " ; " + mathUtilEnd.initQuater.z + " ; " + mathUtilEnd.initQuater.w);
@@ -228,7 +250,11 @@ public class MainActivity extends AppCompatActivity {
                             myStatus = STATUS.START;
                             myStatusTxt.setText("STATUS: Start");
                             initButton.setVisibility(View.VISIBLE);
-                            myFileManager.writeLoopClosingResult(mathUtilStart, mathUtilEnd, startTime);
+                            float[] diff_cord = myFileManager.writeLoopClosingResult(mathUtilStart, mathUtilEnd, startTime);
+                            myinfoTxt.setText("d_x= "+MathUtils.round(diff_cord[0],3)
+                                    +"m; d_y= "+MathUtils.round(diff_cord[1],3)
+                                    +"m; d_z= "+MathUtils.round(diff_cord[2],3));
+                            myinfoTxt.setVisibility(View.VISIBLE);
                             startNewMeasurement();
                         }
                     }
@@ -238,22 +264,22 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onResume(){
+    public void onResume() {
         super.onResume();
 
         // Make sure ARCore is installed and create a new Session and define all the configurations
         // for this session
-        if(createSession()){
+        if (createSession()) {
             defineConfiguration();
             myStatusTxt.setText("STATUS: START");
-            myStatus =  STATUS.START;
+            myStatus = STATUS.START;
         }
     }
 
     /**
      * Set variables new which needs to be changed for a new measurement session
      */
-    private void startNewMeasurement(){
+    private void startNewMeasurement() {
         // Store timestamp when application is executed as start time and set status
         startTime = System.currentTimeMillis();
 
@@ -265,6 +291,7 @@ public class MainActivity extends AppCompatActivity {
         mathUtilEnd = new MathUtils(10);
 
     }
+
     /**
      * Create a global renderable for the ArView
      */
@@ -294,9 +321,10 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Create e new session and make sure ArCore is installed
+     *
      * @return boolean if a new session could be created
      */
-    private Boolean createSession(){
+    private Boolean createSession() {
 
         boolean sessionCreated = false;
         try {
@@ -305,7 +333,7 @@ public class MainActivity extends AppCompatActivity {
                     case INSTALLED:
                         // Success, create the AR session.
                         mySession = new Session(this);
-
+                        //mCloudSession = new CloudSpatialAnchorSession();
                         Log.v(TAG, "Ar session installed");
                         sessionCreated = true;
                         break;
@@ -338,7 +366,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Define configuration for the main session
      */
-    private void defineConfiguration(){
+    private void defineConfiguration() {
         // Define new configuration and set autofocus
         Config config = new Config(mySession);
         config.setFocusMode(Config.FocusMode.AUTO);
@@ -348,9 +376,9 @@ public class MainActivity extends AppCompatActivity {
         mySession.setCameraConfig(mySession.getSupportedCameraConfigs().get(1));
         myArFragment.getArSceneView().setupSession(mySession);
 
-        if (setupAugmentedImagesDb(config, mySession)){
+        if (setupAugmentedImagesDb(config, mySession)) {
             Log.i(TAG, "Image database setup successful!");
-        } else{
+        } else {
             Log.i(TAG, "Image database setup not successful!");
         }
 
@@ -360,7 +388,8 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Setup a database with images to track
-     * @param config Configuration to set up database
+     *
+     * @param config  Configuration to set up database
      * @param session Session which includes the database
      * @return boolean if an image database could be set-up
      */
@@ -368,7 +397,7 @@ public class MainActivity extends AppCompatActivity {
         AugmentedImageDatabase augmentedImageDatabase;
         Bitmap bitmap = loadAugmentedImage("earth");
         Bitmap bitmap2 = loadAugmentedImage("arucoMarker");
-        if ((bitmap == null) || (bitmap2 == null)){
+        if ((bitmap == null) || (bitmap2 == null)) {
             return false;
         }
         augmentedImageDatabase = new AugmentedImageDatabase(session);
@@ -381,10 +410,11 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Load images from the asset folder
+     *
      * @return Bitmap of the image in the asset folder
      */
     private Bitmap loadAugmentedImage(String imgName) {
-        try (InputStream is = getAssets().open(imgName+".jpg")) {
+        try (InputStream is = getAssets().open(imgName + ".jpg")) {
             return BitmapFactory.decodeStream(is);
         } catch (IOException e) {
             Log.e(TAG, "IO Exception", e);
@@ -399,10 +429,10 @@ public class MainActivity extends AppCompatActivity {
     private void isStoragePermissionGranted() {
         if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 == PackageManager.PERMISSION_GRANTED) {
-            Log.v(TAG,"Permission is granted");
+            Log.v(TAG, "Permission is granted");
         } else {
 
-            Log.v(TAG,"Permission is revoked");
+            Log.v(TAG, "Permission is revoked");
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
         }
@@ -415,10 +445,10 @@ public class MainActivity extends AppCompatActivity {
     private void isCameraPermissionGranted() {
         if (checkSelfPermission(Manifest.permission.CAMERA)
                 == PackageManager.PERMISSION_GRANTED) {
-            Log.i(TAG,"Camera permission is granted");
+            Log.i(TAG, "Camera permission is granted");
         } else {
 
-            Log.w(TAG,"Camera permission is revoked");
+            Log.w(TAG, "Camera permission is revoked");
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.CAMERA}, 1);
         }
@@ -445,4 +475,5 @@ public class MainActivity extends AppCompatActivity {
         }
     }
     */
+
 }
