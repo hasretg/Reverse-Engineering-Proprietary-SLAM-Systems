@@ -114,7 +114,7 @@ class MathUtils {
 
         float[] tmp = new float[arr.length];
         for(int i=0; i<arr.length; i++){
-            tmp[i] = (arr[i] - initCoord[i])*(-1);
+            tmp[i] = (arr[i] - initCoord[i]);
         }
        return tmp;
     }
@@ -127,7 +127,7 @@ class MathUtils {
     float[] getRelativeOrientation(float[] arr){
 
         Quaternion arrQuater = new Quaternion(arr[0], arr[1], arr[2], arr[3]);
-        Quaternion tmp = Quaternion.multiply(arrQuater.normalized(), initQuater.inverted());
+        Quaternion tmp = Quaternion.multiply(initQuater.inverted(), arrQuater.normalized());
         Log.i("MathUtils", "Both quats: "+initQuater.toString()+"  ; " +arrQuater.toString());
         Log.i("MathUtils", "Result quad: "+tmp.toString());
         //tmp = Quaternion.multiply(tmp, new Quaternion(0f, 0f, 1f, 0f));

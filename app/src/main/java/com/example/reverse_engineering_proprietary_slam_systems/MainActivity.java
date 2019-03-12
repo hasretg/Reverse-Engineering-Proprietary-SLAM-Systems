@@ -397,12 +397,14 @@ public class MainActivity extends AppCompatActivity {
         AugmentedImageDatabase augmentedImageDatabase;
         Bitmap bitmap = loadAugmentedImage("earth");
         Bitmap bitmap2 = loadAugmentedImage("arucoMarker");
-        if ((bitmap == null) || (bitmap2 == null)) {
+        Bitmap bitmap3 = loadAugmentedImage("titlePage");
+        if ((bitmap == null) || (bitmap2 == null) || (bitmap3 == null)) {
             return false;
         }
         augmentedImageDatabase = new AugmentedImageDatabase(session);
         augmentedImageDatabase.addImage("earth", bitmap);
         augmentedImageDatabase.addImage("arucoMarker", bitmap2);
+        augmentedImageDatabase.addImage("titlePage", bitmap3);
         config.setAugmentedImageDatabase(augmentedImageDatabase);
         return true;
     }
