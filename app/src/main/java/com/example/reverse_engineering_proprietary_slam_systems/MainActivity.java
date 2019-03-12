@@ -228,12 +228,7 @@ public class MainActivity extends AppCompatActivity {
                             captureButton.setVisibility(View.VISIBLE);
                             myArFragment.addTrackableNodeToScene(myAugmImg.getAugmentedImage().createAnchor(myAugmImg.getPose()), myRenderable);
                             //shouldAddModel = false;
-                            Log.i(TAG, "Init coord: " + mathUtilStart.initCoord[0] + " ; " + mathUtilStart.initCoord[1] + " ; " + mathUtilStart.initCoord[2]);
-                            Log.i(TAG, "coord std dev: " + mathUtilStart.initCoordStdDev[0] + " ; " + mathUtilStart.initCoordStdDev[1] + " ; " + mathUtilStart.initCoordStdDev[2]);
-
-                            Log.i(TAG, "Init quat: " + mathUtilStart.initQuater.x + " ; " + mathUtilStart.initQuater.y + " ; " + mathUtilStart.initQuater.z + " ; " + mathUtilStart.initQuater.w);
-                            Log.i(TAG, "Quat std dev: " + mathUtilStart.initQuaterStdDev[0] + " ; " + mathUtilStart.initQuaterStdDev[1] + " ; " + mathUtilStart.initQuaterStdDev[2] + " ; " + mathUtilStart.initQuaterStdDev[3]);
-                        }
+                            }
                     }
                     break;
 
@@ -243,10 +238,6 @@ public class MainActivity extends AppCompatActivity {
                         AugmentedImg myAugmImg = augmentedImgs.get("earth");
                         assert myAugmImg != null;
                         if (mathUtilEnd.addCoord(myAugmImg.getCoordinates(), currFrame.getCamera().getPose().getRotationQuaternion())) {
-                            Log.i(TAG, "End coord: " + mathUtilEnd.initCoord[0] + " ; " + mathUtilEnd.initCoord[1] + " ; " + mathUtilEnd.initCoord[2]);
-                            Log.i(TAG, "End coord std dev: " + mathUtilEnd.initCoordStdDev[0] + " ; " + mathUtilEnd.initCoordStdDev[1] + " ; " + mathUtilEnd.initCoordStdDev[2]);
-                            Log.i(TAG, "End quat: " + mathUtilEnd.initQuater.x + " ; " + mathUtilEnd.initQuater.y + " ; " + mathUtilEnd.initQuater.z + " ; " + mathUtilEnd.initQuater.w);
-                            Log.i(TAG, "End Quat std dev: " + mathUtilEnd.initQuaterStdDev[0] + " ; " + mathUtilEnd.initQuaterStdDev[1] + " ; " + mathUtilEnd.initQuaterStdDev[2] + " ; " + mathUtilEnd.initQuaterStdDev[3]);
                             myStatus = STATUS.START;
                             myStatusTxt.setText("STATUS: Start");
                             initButton.setVisibility(View.VISIBLE);
