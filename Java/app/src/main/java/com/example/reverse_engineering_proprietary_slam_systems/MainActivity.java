@@ -198,7 +198,8 @@ public class MainActivity extends AppCompatActivity {
                             String myKey = (String) pair.getKey();
                             AugmentedImg myImg = (AugmentedImg) pair.getValue();
                             myFileManager.writePosterInfo(myKey, myImg.getSize(),
-                                    myImg.getCoordinates(), myImg.getQuaternion());
+                                    mathUtilStart.getRelativeTranslation(myImg.getCoordinates()),
+                                    mathUtilStart.getRelativeOrientation(myImg.getQuaternion()));
                             it.remove();
                         }
                         myFileManager.finishTextline();
@@ -220,7 +221,9 @@ public class MainActivity extends AppCompatActivity {
                     if (augmentedImgs.containsKey("earth")) {
                         AugmentedImg myAugmImg = augmentedImgs.get("earth");
                         assert myAugmImg != null;
-                        if (mathUtilStart.addCoord(myAugmImg.getCoordinates(), currFrame.getCamera().getPose().getRotationQuaternion())) {
+                        Log.i(TAG, "Camera pose: " +currFrame.getCamera().getPose().toString());
+                        Log.i(TAG, "Target pose: "+myAugmImg.getPose().toString());
+                        if (mathUtilStart.addCoord(myAugmImg.getCoordinates(), myAugmImg.getPose().getRotationQuaternion())) {
 
                             Toast.makeText(this, "Initialization successfull!", Toast.LENGTH_LONG);
                             myStatus = STATUS.TRACKING;

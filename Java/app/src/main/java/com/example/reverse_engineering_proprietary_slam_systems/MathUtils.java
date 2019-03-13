@@ -19,6 +19,7 @@ class MathUtils {
     float[] initCoordStdDev;
     Quaternion initQuater;
     float[] initQuaterStdDev;
+    Quaternion transf_quat = new Quaternion(0f, 1f, 0f, 0f);
 
     // Class pose with 3D coordinate and 4D quaternion
     private final float[][] pose;
@@ -62,8 +63,9 @@ class MathUtils {
     private void setMedianAndStdDev()
     {
         initCoord = new float[]{median(pose[0]), median(pose[1]), median(pose[2])};
-        initQuater = new Quaternion(median(pose[3]), median(pose[4]), median(pose[5]), median(pose[6]));
-        initQuater = initQuater.normalized();
+        Quaternion temp_quat = new Quaternion(median(pose[3]), median(pose[4]), median(pose[5]), median(pose[6]));
+        // Rotate 180° around y-axis
+        initQuater = Quaternion.multiply(temp_quat.normalized(), transf_quat);
 
         initCoordStdDev = new float[]{stdDeviation(pose[0]), stdDeviation(pose[1]), stdDeviation(pose[2])};
         initQuaterStdDev = new float[]{stdDeviation(pose[3]), stdDeviation(pose[4]), stdDeviation(pose[5]), stdDeviation(pose[6])};

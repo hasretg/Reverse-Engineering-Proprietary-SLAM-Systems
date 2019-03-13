@@ -4,12 +4,20 @@ from mpl_toolkits.mplot3d import axes3d
 import numpy as np
 from pyquaternion import Quaternion
 import math
+from collections import defaultdict
+
+FILE_NAME = 'poseFiles/1552486217328.txt'
 
 
 def main():
     coords, quats, timestamp = [], [], []
-    # Open txt-file with the SLAM information
-    with open('poseFiles/1552401569521.txt') as csv_file:
+    m_dict = defaultdict(list)  # List of dictionaries with the markers and its information (e.g. pose)
+
+    ###
+    # In this section, all the data needed for the processing is extracted from the text-file with all the ArCore SLAM
+    # information saved in the android application
+    ###
+    with open(FILE_NAME) as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=',')
         next(csv_reader)
         line_count = 0
@@ -18,43 +26,75 @@ def main():
             quats.append(row[10:14])
             timestamp.append(row[0])
             line_count = line_count + 1
-        print(f'{line_count} lines processed.')
-        coords = np.asarray(coords, dtype=np.float)
-        quats = np.asarray(quats, dtype=np.float)
-        timestamp = np.asarray(timestamp, dtype=np.int)
 
-        x = np.array(coords[:, 0])
-        y = np.array(coords[:, 1])
-        z = np.array(coords[:, 2])
+            nr_of_markers = (len(row)-15)//10  # Determine number of markers detected in a frame
+            for marker in range(nr_of_markers):
+                m_dict[row[15 + 10*marker]].append({'sizeX': row[16 + 10*marker], 'sizeY': row[17 + 10*marker],
+                                                    'px': row[18 + 10*marker], 'py': row[19 + 10*marker],
+                                                    'pz': row[20 + 10*marker], 'qx': row[21 + 10*marker],
+                                                    'qy': row[22 + 10*marker], 'qz': row[23 + 10*marker],
+                                                    'qw': row[24 + 10*marker]})
 
-        unit_ax = np.eye(3)
+    print(len(m_dict['earth']))
+    print(f'{line_count} lines processed.')
+    coords = np.asarray(coords, dtype=np.float)
+    quats = np.asarray(quats, dtype=np.float)
+    timestamp = np.asarray(timestamp, dtype=np.int)
 
-        fig = plt.figure()
-        ax = fig.add_subplot(111, projection='3d')
-        for i in range(0, len(quats), 10):
+    ###
+    # In this section, we plot the information extracted from the textfile, including camera pose, marker pose
+    ###
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.scatter3D(coords[:, 0], coords[:, 1], coords[:, 2], c=timestamp, cmap='cool')  # Plot position of each frame
+    for i in range(0, len(quats), 30):
+        # Plot orientation of each camera frame
+        mat_euler = get_euler_rotation(quats[i, :])
 
-            # Euler rotation of each axis
-            q = Quaternion(quats[i, 1], quats[i, 2], quats[i, 3], quats[i, 0]).normalised
-            euler = rotation_matrix_to_euler_angles(q.rotation_matrix)
-            x_rot, y_rot, z_rot = euler_rotation(unit_ax, euler)
+        # Plot axis of camera in 3D
+        scale = 1
+        ax.plot([coords[i, 0], coords[i, 0] - mat_euler[0, 0] * scale], [coords[i, 1], coords[i, 1] - mat_euler[1, 0] * scale], [coords[i, 2]
+            , coords[i, 2] - mat_euler[2, 0] * scale], c='r')
+        ax.plot([coords[i, 0], coords[i, 0] - mat_euler[0, 1] * scale], [coords[i, 1], coords[i, 1] - mat_euler[1, 1] * scale], [coords[i, 2]
+            , coords[i, 2] - mat_euler[2, 1] * scale], c='g')
+        ax.plot([coords[i, 0], coords[i, 0] - mat_euler[0, 2] * scale], [coords[i, 1], coords[i, 1] - mat_euler[1, 2] * scale], [coords[i, 2]
+            , coords[i, 2] - mat_euler[2, 2] * scale], c='b')
+        #plot_orientation(mat_euler, coords[i, :], ax)
 
-            # Plot axis of camera in 3D
-            ax.plot([coords[i, 0], coords[i, 0]-x_rot[0]*0.1], [coords[i, 1], coords[i, 1]-x_rot[1]*0.1], [coords[i, 2]
-                    , coords[i, 2]-x_rot[2]*0.1], c='r')
-            ax.plot([coords[i, 0], coords[i, 0]-y_rot[0]*0.1], [coords[i, 1], coords[i, 1]-y_rot[1]*0.1], [coords[i, 2]
-                    , coords[i, 2]-y_rot[2]*0.1], c='g')
-            ax.plot([coords[i, 0], coords[i, 0]-z_rot[0]*0.1], [coords[i, 1], coords[i, 1]-z_rot[1]*0.1], [coords[i, 2]
-                    , coords[i, 2]-z_rot[2]*0.1], c='b')
+    for marker in m_dict:
+        for info in m_dict[marker]:
+            print(info)
 
-        # Plot 3D coordinates of camera
-        ax.scatter3D(x, y, z, c=timestamp, cmap='cool')
-        ax.set_xlabel('X axis')
-        ax.set_xlim(0, 0.5)
-        ax.set_ylabel('Y axis')
-        ax.set_ylim(0, -0.5)
-        ax.set_zlabel('Z axis')
-        ax.set_zlim(-0.4, -0.9)
-        plt.show()
+            ax.scatter3D(float(info['px']), float(info['py']), float(info['pz']), marker="D", c='black', s=30)
+            mat_euler = get_euler_rotation([float(info['qx']), float(info['qy']), float(info['qz']), float(info['qw'])])
+
+
+            plot_orientation(mat_euler, [float(info['px']), float(info['py']), float(info['pz'])], ax, scale=2)
+
+
+    max = np.max(coords, axis=0)
+    min = np.min(coords, axis=0)
+    ext = np.max(np.subtract(max, min)) /2
+    mid = np.subtract(max, min) / 2
+
+    ax.set_xlim(mid[0] - ext, mid[0] + ext )
+    ax.set_ylim(mid[1] - ext, mid[1] + ext)
+    ax.set_zlim(mid[2] - ext, mid[2] + ext)
+    ax.set_xlabel('X axis')
+    ax.set_ylabel('Y axis')
+    ax.set_zlabel('Z axis')
+    plt.show()
+
+
+def get_euler_rotation(q):
+    unit_axis = np.eye(3)
+    quad = Quaternion(q[1], q[2], q[3], q[0]).normalised
+
+    rot_mat = np.asarray(quad.rotation_matrix, dtype=np.double)
+    print(np.matmul(rot_mat[:, 0], rot_mat[:, 1]))
+    euler = rotation_matrix_to_euler_angles(quad.rotation_matrix)
+    return quad.rotation_matrix
+    #return euler_rotation(unit_axis, euler)
 
 
 # Checks if a matrix is a valid rotation matrix.
@@ -91,8 +131,21 @@ def euler_rotation(matrix, theta):
     R_x = np.array([[1, 0, 0], [0, np.cos(theta[0]), -np.sin(theta[0])], [0, np.sin(theta[0]), np.cos(theta[0])]])
     R_y = np.array([[np.cos(theta[1]), 0, np.sin(theta[1])], [0, 1, 0], [-np.sin(theta[1]), 0, np.cos(theta[1])]])
     R_z = np.array([[np.cos(theta[2]), -np.sin(theta[2]), 0], [np.sin(theta[2]), np.cos(theta[2]), 0], [0, 0, 1]])
-    R_tot = np.multiply(np.multiply(R_x, R_y), R_z)
-    return np.dot(R_tot, matrix[0, :]), np.dot(R_tot, matrix[1, :]), np.dot(R_tot, matrix[2, :])
+    R_tot = np.multiply(np.multiply(R_z, R_y), R_x)
+    return np.multiply(R_tot, matrix)
+
+
+def plot_orientation(mat, coord, fig, scale=0.3):
+
+
+
+    # Plot axis of camera in 3D
+    fig.plot([coord[0], coord[0] - mat[0, 0] * scale], [coord[1], coord[1] - mat[1, 0] * scale], [coord[2]
+             , coord[2] - mat[2, 0] * scale], c='r')
+    fig.plot([coord[0], coord[0] - mat[0, 1] * scale], [coord[1], coord[1] - mat[1, 1] * scale], [coord[2]
+             , coord[2] - mat[2, 1] * scale], c='g')
+    fig.plot([coord[0], coord[0] - mat[0, 2] * scale], [coord[1], coord[1] - mat[1, 2] * scale], [coord[2]
+             , coord[2] - mat[2, 2] * scale], c='b')
 
 
 if __name__ == '__main__':
