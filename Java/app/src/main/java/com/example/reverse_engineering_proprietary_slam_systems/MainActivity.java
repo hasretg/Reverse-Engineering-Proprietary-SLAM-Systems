@@ -187,6 +187,8 @@ public class MainActivity extends AppCompatActivity {
                         float[] focalLength = currCamera.getImageIntrinsics().getFocalLength();
                         float[] principlePoint = currCamera.getImageIntrinsics().getPrincipalPoint();
 
+
+                        Log.i(TAG, "qx: "+mathUtilStart.getRelativeOrientation(currCamRot)[0]+" qy: "+mathUtilStart.getRelativeOrientation(currCamRot)[1]+" qz: "+mathUtilStart.getRelativeOrientation(currCamRot)[2]+" qw: "+mathUtilStart.getRelativeOrientation(currCamRot)[3]);
                         myFileManager.writePoseInfo(currTime,
                                 mathUtilStart.getRelativeTranslation(currCamTrans),
                                 mathUtilStart.getRelativeOrientation(currCamRot),
@@ -223,6 +225,8 @@ public class MainActivity extends AppCompatActivity {
                         assert myAugmImg != null;
                         Log.i(TAG, "Camera pose: " +currFrame.getCamera().getPose().toString());
                         Log.i(TAG, "Target pose: "+myAugmImg.getPose().toString());
+
+
                         if (mathUtilStart.addCoord(myAugmImg.getCoordinates(), myAugmImg.getPose().getRotationQuaternion())) {
 
                             Toast.makeText(this, "Initialization successfull!", Toast.LENGTH_LONG);

@@ -1,12 +1,13 @@
 import csv
 import matplotlib.pyplot as plt
+from sklearn.preprocessing import normalize
 from mpl_toolkits.mplot3d import axes3d
 import numpy as np
 from pyquaternion import Quaternion
 import math
 from collections import defaultdict
 
-FILE_NAME = 'poseFiles/1552486217328.txt'
+FILE_NAME = 'poseFiles/1552948143677.txt'
 
 
 def main():
@@ -35,11 +36,27 @@ def main():
                                                     'qy': row[22 + 10*marker], 'qz': row[23 + 10*marker],
                                                     'qw': row[24 + 10*marker]})
 
-    print(len(m_dict['earth']))
     print(f'{line_count} lines processed.')
     coords = np.asarray(coords, dtype=np.float)
     quats = np.asarray(quats, dtype=np.float)
     timestamp = np.asarray(timestamp, dtype=np.int)
+
+    #Initial coordinate of the marker
+    init_coord = np.array([0.75111485, -0.18368168, 0.5400902])
+    # When first starting app, this is the default orientation
+    init_quat = Quaternion(0.707, 0, 0, -0.707)
+    # Transformation of
+    img_to_cam_quat = Quaternion(-0.6854666, -0.17241786, -0.18655144, -0.68235344).normalised
+
+    # Transform position and orientation to the correct coordinate system
+    for i in range(len(timestamp)):
+        currQuat = Quaternion(quats[i, 3], quats[i, 0], quats[i, 1], quats[i, 2]).normalised
+        finalQuat = init_quat.inverse*img_to_cam_quat.inverse*currQuat
+        mat_euler = (init_quat.inverse *img_to_cam_quat.inverse).rotation_matrix
+
+        coords[i, :] = np.matmul(mat_euler, coords[i, :] + init_coord)
+        quats[i, :] = [finalQuat.x, finalQuat.y, finalQuat.z, finalQuat.w]
+
 
     ###
     # In this section, we plot the information extracted from the textfile, including camera pose, marker pose
@@ -50,26 +67,25 @@ def main():
     for i in range(0, len(quats), 30):
         # Plot orientation of each camera frame
         mat_euler = get_euler_rotation(quats[i, :])
-
         # Plot axis of camera in 3D
         scale = 1
-        ax.plot([coords[i, 0], coords[i, 0] - mat_euler[0, 0] * scale], [coords[i, 1], coords[i, 1] - mat_euler[1, 0] * scale], [coords[i, 2]
-            , coords[i, 2] - mat_euler[2, 0] * scale], c='r')
-        ax.plot([coords[i, 0], coords[i, 0] - mat_euler[0, 1] * scale], [coords[i, 1], coords[i, 1] - mat_euler[1, 1] * scale], [coords[i, 2]
-            , coords[i, 2] - mat_euler[2, 1] * scale], c='g')
-        ax.plot([coords[i, 0], coords[i, 0] - mat_euler[0, 2] * scale], [coords[i, 1], coords[i, 1] - mat_euler[1, 2] * scale], [coords[i, 2]
-            , coords[i, 2] - mat_euler[2, 2] * scale], c='b')
+
+        ax.plot([coords[i, 0], coords[i, 0] - mat_euler[0, 0] * scale], [coords[i, 1], coords[i, 1] - mat_euler[1, 0]
+                * scale], [coords[i, 2], coords[i, 2] - mat_euler[2, 0] * scale], c='r')
+        ax.plot([coords[i, 0], coords[i, 0] - mat_euler[0, 1] * scale], [coords[i, 1], coords[i, 1] - mat_euler[1, 1]
+                * scale], [coords[i, 2], coords[i, 2] - mat_euler[2, 1] * scale], c='g')
+        ax.plot([coords[i, 0], coords[i, 0] - mat_euler[0, 2] * scale], [coords[i, 1], coords[i, 1] - mat_euler[1, 2]
+                * scale], [coords[i, 2], coords[i, 2] - mat_euler[2, 2] * scale], c='b')
         #plot_orientation(mat_euler, coords[i, :], ax)
 
     for marker in m_dict:
         for info in m_dict[marker]:
-            print(info)
 
-            ax.scatter3D(float(info['px']), float(info['py']), float(info['pz']), marker="D", c='black', s=30)
+            #ax.scatter3D(float(info['px']), float(info['py']), float(info['pz']), marker="D", c='black', s=30)
             mat_euler = get_euler_rotation([float(info['qx']), float(info['qy']), float(info['qz']), float(info['qw'])])
 
 
-            plot_orientation(mat_euler, [float(info['px']), float(info['py']), float(info['pz'])], ax, scale=2)
+            #plot_orientation(mat_euler, [float(info['px']), float(info['py']), float(info['pz'])], ax, scale=2)
 
 
     max = np.max(coords, axis=0)
@@ -77,9 +93,9 @@ def main():
     ext = np.max(np.subtract(max, min)) /2
     mid = np.subtract(max, min) / 2
 
-    ax.set_xlim(mid[0] - ext, mid[0] + ext )
-    ax.set_ylim(mid[1] - ext, mid[1] + ext)
-    ax.set_zlim(mid[2] - ext, mid[2] + ext)
+    # ax.set_xlim(mid[0] - ext, mid[0] + ext)
+    # ax.set_ylim(mid[1] - ext, mid[1] + ext)
+    # ax.set_zlim(mid[2] - ext, mid[2] + ext)
     ax.set_xlabel('X axis')
     ax.set_ylabel('Y axis')
     ax.set_zlabel('Z axis')
@@ -87,14 +103,8 @@ def main():
 
 
 def get_euler_rotation(q):
-    unit_axis = np.eye(3)
-    quad = Quaternion(q[1], q[2], q[3], q[0]).normalised
-
-    rot_mat = np.asarray(quad.rotation_matrix, dtype=np.double)
-    print(np.matmul(rot_mat[:, 0], rot_mat[:, 1]))
-    euler = rotation_matrix_to_euler_angles(quad.rotation_matrix)
+    quad = Quaternion(q[3], q[0], q[1], q[2]).normalised
     return quad.rotation_matrix
-    #return euler_rotation(unit_axis, euler)
 
 
 # Checks if a matrix is a valid rotation matrix.
@@ -136,8 +146,6 @@ def euler_rotation(matrix, theta):
 
 
 def plot_orientation(mat, coord, fig, scale=0.3):
-
-
 
     # Plot axis of camera in 3D
     fig.plot([coord[0], coord[0] - mat[0, 0] * scale], [coord[1], coord[1] - mat[1, 0] * scale], [coord[2]

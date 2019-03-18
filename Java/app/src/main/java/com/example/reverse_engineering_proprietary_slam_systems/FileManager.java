@@ -97,6 +97,7 @@ final class FileManager {
 
     void writePoseInfo(long currTime, float[] camTrans, float[] camRot, int[] imgDim, float[] focalLength, float[] princPt, int frameId){
 
+        Log.i("MainActivity", "x: "+MathUtils.round(camTrans[0], 3)+"; y: "+MathUtils.round(camTrans[1], 3)+"; z: "+MathUtils.round(camTrans[2], 3));
         String str_line = ""+currTime+","+imgDim[0]+","+imgDim[1]+","+princPt[0]+","+princPt[1]
                 +","+focalLength[0]+","+focalLength[1]+","+MathUtils.round(camTrans[0],3)
                 +","+MathUtils.round(camTrans[1],3)+","+MathUtils.round(camTrans[2],3)
