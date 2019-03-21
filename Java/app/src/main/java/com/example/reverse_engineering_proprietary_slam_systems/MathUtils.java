@@ -19,10 +19,11 @@ class MathUtils {
     float[] initCoordStdDev;
     Quaternion initQuater;
     float[] initQuaterStdDev;
-
-    Quaternion imgToCam_quat = new Quaternion(0.5f, -0.5f, -0.5f, -0.5f);
+    Quaternion offset_Quat = new Quaternion(0.707f, 0f, 0f, -0.707f).normalized();
+    //Quaternion imgToCam_quat = new Quaternion(0.5f, -0.5f, -0.5f, -0.5f);
     // Class pose with 3D coordinate and 4D quaternion
     private final float[][] pose;
+    float rotMat[][] = new float[3][3];
 
     /**
      * Constructor
@@ -63,14 +64,24 @@ class MathUtils {
     private void setMedianAndStdDev()
     {
         initCoord = new float[]{median(pose[0]), median(pose[1]), median(pose[2])};
-        initQuater = new Quaternion(median(pose[3]), median(pose[4]), median(pose[5]), median(pose[6]));
+        initQuater = new Quaternion(median(pose[3]), median(pose[4]), median(pose[5]), median(pose[6])).normalized();
         Log.i("MathUtils", "Init coord: "+"x: "+initCoord[0]+" y: "+initCoord[1]+" z: "+initCoord[2]);
         Log.i("MathUtils", "Init quat: "+initQuater.toString());
-
-        initQuater = Quaternion.multiply(initQuater, imgToCam_quat);
+        //initQuater = Quaternion.multiply(initQuater);
         Log.i("MathUtils", "img_to_cam quat: "+initQuater.toString());
 
-        //initQuater = Quaternion.multiply(initQuater, initQuater);
+        Quaternion q = Quaternion.multiply(offset_Quat.inverted(), initQuater.inverted());
+        // Define rotation matrix
+        rotMat[0][0] = 1-2*(q.y)*(q.y) - 2*(q.z)*q.z;
+        rotMat[0][1] = 2*q.x*q.y - 2*q.z*q.w;
+        rotMat[0][2] = 2*q.x*q.z + 2*q.y*q.w;
+        rotMat[1][0] = 2*q.x*q.y + 2*q.z*q.w;
+        rotMat[1][1] = 1-2*(q.x)*(q.x) - 2*(q.z)*q.z;
+        rotMat[1][2] = 2*q.y*q.z - 2*q.x*q.w;
+        rotMat[2][0] = 2*q.x*q.z - 2*q.y*q.w;
+        rotMat[2][1] = 2*q.y*q.z + 2*q.x*q.w;
+        rotMat[2][2] = 1-2*(q.x)*(q.x) - 2*(q.y)*q.y;
+
         initCoordStdDev = new float[]{stdDeviation(pose[0]), stdDeviation(pose[1]), stdDeviation(pose[2])};
         initQuaterStdDev = new float[]{stdDeviation(pose[3]), stdDeviation(pose[4]), stdDeviation(pose[5]), stdDeviation(pose[6])};
     }
@@ -113,35 +124,33 @@ class MathUtils {
 
     /**
      * Calculate relative position with respect to the initial position
-     * @param arr is a 3D translation vector
-     * @return relative translation with respect to the initial position
      */
-    float[] getRelativeTranslation(float[] arr){
+    float[] getRelativePose(float[] arrC, float[] arrQ) {
+        Quaternion arrQuater = new Quaternion(arrQ[0], arrQ[1], arrQ[2], arrQ[3]);
+        Quaternion tmpQuat = Quaternion.multiply(Quaternion.multiply(offset_Quat.inverted(), initQuater), arrQuater);
 
-        float[] tmp = new float[arr.length];
-        for(int i=0; i<arr.length; i++){
-            tmp[i] = (arr[i] - initCoord[i]);
+        float[] tmpCoord = {0, 0, 0};
+        for (int i = 0; i < arrC.length; i++) {
+            for (int j = 0; j < arrC.length; j++) {
+                tmpCoord[i] += rotMat[i][j] * (arrC[j] - initCoord[j]);
+            }
         }
-        // Only for testing
-        tmp = arr;
-       return tmp;
+        return new float[]{tmpCoord[0], tmpCoord[1], tmpCoord[2], tmpQuat.x, tmpQuat.y, tmpQuat.z, tmpQuat.w};
     }
-
     /**
      * Calculate relative orienation with respect to the initial orientation
-     * @param arr is a 4D rotation vector (quaternion)
      * @return relative orientation with respect to the initial orientation
-     */
-    float[] getRelativeOrientation(float[] arr){
+     
+    //float[] getRelativeOrientation(float[] arr){
 
         Quaternion arrQuater = new Quaternion(arr[0], arr[1], arr[2], arr[3]);
 
-        //Quaternion tmp = Quaternion.multiply(initQuater.inverted(), arrQuater);
+        Quaternion tmp = Quaternion.multiply(offset_Quat.inverted(), arrQuater);
 
         // Only for testing
         Quaternion tmp = arrQuater;
         return new float[]{tmp.x, tmp.y, tmp.z, tmp.w};
-    }
+    //}
 
     /**
      * Get residual of the coordinates

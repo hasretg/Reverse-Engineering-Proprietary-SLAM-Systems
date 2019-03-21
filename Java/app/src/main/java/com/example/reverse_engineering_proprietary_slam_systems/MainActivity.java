@@ -188,10 +188,9 @@ public class MainActivity extends AppCompatActivity {
                         float[] principlePoint = currCamera.getImageIntrinsics().getPrincipalPoint();
 
 
-                        Log.i(TAG, "qx: "+mathUtilStart.getRelativeOrientation(currCamRot)[0]+" qy: "+mathUtilStart.getRelativeOrientation(currCamRot)[1]+" qz: "+mathUtilStart.getRelativeOrientation(currCamRot)[2]+" qw: "+mathUtilStart.getRelativeOrientation(currCamRot)[3]);
+                        //Log.i(TAG, "qx: "+mathUtilStart.getRelativeOrientation(currCamRot)[0]+" qy: "+mathUtilStart.getRelativeOrientation(currCamRot)[1]+" qz: "+mathUtilStart.getRelativeOrientation(currCamRot)[2]+" qw: "+mathUtilStart.getRelativeOrientation(currCamRot)[3]);
                         myFileManager.writePoseInfo(currTime,
-                                mathUtilStart.getRelativeTranslation(currCamTrans),
-                                mathUtilStart.getRelativeOrientation(currCamRot),
+                                mathUtilStart.getRelativePose(currCamTrans, currCamRot),
                                 imgDim, focalLength, principlePoint, frameID);
 
                         Iterator it = augmentedImgs.entrySet().iterator();
@@ -200,8 +199,7 @@ public class MainActivity extends AppCompatActivity {
                             String myKey = (String) pair.getKey();
                             AugmentedImg myImg = (AugmentedImg) pair.getValue();
                             myFileManager.writePosterInfo(myKey, myImg.getSize(),
-                                    mathUtilStart.getRelativeTranslation(myImg.getCoordinates()),
-                                    mathUtilStart.getRelativeOrientation(myImg.getQuaternion()));
+                                    mathUtilStart.getRelativePose(myImg.getCoordinates(), myImg.getQuaternion()));
                             it.remove();
                         }
                         myFileManager.finishTextline();

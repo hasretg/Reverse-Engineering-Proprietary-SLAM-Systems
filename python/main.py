@@ -7,7 +7,7 @@ from pyquaternion import Quaternion
 import math
 from collections import defaultdict
 
-FILE_NAME = 'poseFiles/1552948143677.txt'
+FILE_NAME = 'poseFiles/1553159282171.txt'
 
 
 def main():
@@ -48,23 +48,38 @@ def main():
     # Transformation of
     img_to_cam_quat = Quaternion(-0.6854666, -0.17241786, -0.18655144, -0.68235344).normalised
 
-    # Transform position and orientation to the correct coordinate system
+    ''''' Transform position and orientation to the correct coordinate system
     for i in range(len(timestamp)):
         currQuat = Quaternion(quats[i, 3], quats[i, 0], quats[i, 1], quats[i, 2]).normalised
         finalQuat = init_quat.inverse*img_to_cam_quat.inverse*currQuat
         mat_euler = (init_quat.inverse *img_to_cam_quat.inverse).rotation_matrix
+        q = init_quat.inverse*img_to_cam_quat.inverse
+
+        rot_mat = np.ndarray((3, 3));
+        rot_mat[0, 0] = 1-2*(q.y)*(q.y) - 2*(q.z)*q.z
+        rot_mat[0, 1] = 2*q.x*q.y - 2*q.z*q.w
+        rot_mat[0, 2] = 2*q.x*q.z + 2*q.y*q.w
+        rot_mat[1, 0] = 2*q.x*q.y + 2*q.z*q.w
+        rot_mat[1, 1] = 1-2*(q.x)*(q.x) - 2*(q.z)*q.z
+        rot_mat[1, 2] = 2*q.y*q.z - 2*q.x*q.w
+        rot_mat[2, 0] = 2*q.x*q.z - 2*q.y*q.w
+        rot_mat[2, 1] = 2*q.y*q.z + 2*q.x*q.w
+        rot_mat[2, 2] = 1-2*(q.x)*(q.x) - 2*(q.y)*q.y
+        print(rot_mat - mat_euler)
+        #print(mat_euler)
+
 
         coords[i, :] = np.matmul(mat_euler, coords[i, :] + init_coord)
         quats[i, :] = [finalQuat.x, finalQuat.y, finalQuat.z, finalQuat.w]
 
-
+    '''
     ###
     # In this section, we plot the information extracted from the textfile, including camera pose, marker pose
     ###
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
     ax.scatter3D(coords[:, 0], coords[:, 1], coords[:, 2], c=timestamp, cmap='cool')  # Plot position of each frame
-    for i in range(0, len(quats), 30):
+    for i in range(0, len(quats), 10):
         # Plot orientation of each camera frame
         mat_euler = get_euler_rotation(quats[i, :])
         # Plot axis of camera in 3D
@@ -81,11 +96,11 @@ def main():
     for marker in m_dict:
         for info in m_dict[marker]:
 
-            #ax.scatter3D(float(info['px']), float(info['py']), float(info['pz']), marker="D", c='black', s=30)
+            ax.scatter3D(float(info['px']), float(info['py']), float(info['pz']), marker="D", c='black', s=30)
             mat_euler = get_euler_rotation([float(info['qx']), float(info['qy']), float(info['qz']), float(info['qw'])])
 
 
-            #plot_orientation(mat_euler, [float(info['px']), float(info['py']), float(info['pz'])], ax, scale=2)
+            plot_orientation(mat_euler, [float(info['px']), float(info['py']), float(info['pz'])], ax, scale=2)
 
 
     max = np.max(coords, axis=0)

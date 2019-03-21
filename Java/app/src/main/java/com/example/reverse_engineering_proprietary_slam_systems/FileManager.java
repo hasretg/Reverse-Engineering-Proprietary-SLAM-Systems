@@ -95,23 +95,23 @@ final class FileManager {
         return d_c;
     }
 
-    void writePoseInfo(long currTime, float[] camTrans, float[] camRot, int[] imgDim, float[] focalLength, float[] princPt, int frameId){
+    void writePoseInfo(long currTime, float[] camPose, int[] imgDim, float[] focalLength, float[] princPt, int frameId){
 
-        Log.i("MainActivity", "x: "+MathUtils.round(camTrans[0], 3)+"; y: "+MathUtils.round(camTrans[1], 3)+"; z: "+MathUtils.round(camTrans[2], 3));
+        Log.i("MainActivity", "x: "+MathUtils.round(camPose[0], 3)+"; y: "+MathUtils.round(camPose[1], 3)+"; z: "+MathUtils.round(camPose[2], 3));
         String str_line = ""+currTime+","+imgDim[0]+","+imgDim[1]+","+princPt[0]+","+princPt[1]
-                +","+focalLength[0]+","+focalLength[1]+","+MathUtils.round(camTrans[0],3)
-                +","+MathUtils.round(camTrans[1],3)+","+MathUtils.round(camTrans[2],3)
-                +","+MathUtils.round(camRot[0],3)+","+MathUtils.round(camRot[1],3)
-                +","+MathUtils.round(camRot[2],3)+","+MathUtils.round(camRot[3],3)
+                +","+focalLength[0]+","+focalLength[1]+","+MathUtils.round(camPose[0],3)
+                +","+MathUtils.round(camPose[1],3)+","+MathUtils.round(camPose[2],3)
+                +","+MathUtils.round(camPose[3],6)+","+MathUtils.round(camPose[4],6)
+                +","+MathUtils.round(camPose[5],6)+","+MathUtils.round(camPose[6],6)
                 +","+"img_"+frameId+".jpg";
         poseTextFile += str_line;
     }
 
-    void writePosterInfo(String name, float[] size, float[] coord, float[] quat){
-        String str_line = ","+name+","+size[0]+","+size[1]+","+MathUtils.round(coord[0],3)
-                +","+MathUtils.round(coord[1],3)+","+MathUtils.round(coord[2],3)
-                +","+MathUtils.round(quat[0],3)+","+MathUtils.round(quat[1],3)
-                +","+MathUtils.round(quat[2],3)+","+MathUtils.round(quat[3],3);
+    void writePosterInfo(String name, float[] size, float[] pose){
+        String str_line = ","+name+","+size[0]+","+size[1]+","+MathUtils.round(pose[0],3)
+                +","+MathUtils.round(pose[1],3)+","+MathUtils.round(pose[2],3)
+                +","+MathUtils.round(pose[3],6)+","+MathUtils.round(pose[4],6)
+                +","+MathUtils.round(pose[5],6)+","+MathUtils.round(pose[5],6);
         poseTextFile += str_line;
     }
 
