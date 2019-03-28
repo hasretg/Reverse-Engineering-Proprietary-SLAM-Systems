@@ -248,7 +248,7 @@ public class Shared extends AzureSpatialAnchorsActivity
             Date now = new Date();
             Calendar cal = Calendar.getInstance();
             cal.setTime(now);
-            cal.add(Calendar.DATE, 1);
+            cal.add(Calendar.DATE, 100);
             Date oneDayFromNow = cal.getTime();
             visual.cloudAnchor.setExpiration(oneDayFromNow);
 

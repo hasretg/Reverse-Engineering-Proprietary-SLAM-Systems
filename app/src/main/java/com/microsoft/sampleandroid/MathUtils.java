@@ -49,6 +49,7 @@ class MathUtils {
             pose[6][counter] = quater2[3];
 
             counter++;
+            Log.i("MathUtils", "COORD INIT: "+Arrays.toString(coord2)+"QUAT INIT: "+Arrays.toString(quater2));
             return false;
         }else {
             setMedianAndStdDev();

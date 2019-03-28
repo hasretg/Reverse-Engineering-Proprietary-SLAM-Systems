@@ -172,6 +172,7 @@ public class MyActivity extends AppCompatActivity {
             Collection<AugmentedImage> augmentedImages = currFrame.getUpdatedTrackables(AugmentedImage.class);
             for (AugmentedImage augmentedImage : augmentedImages) {
                 if (augmentedImage.getTrackingState() == TrackingState.TRACKING) {
+                    Log.i("TAG111", "Name: "+augmentedImage.getName());
                     augmentedImgs.put(augmentedImage.getName(), new AugmentedImg(augmentedImage));
                 }
             }
@@ -220,8 +221,8 @@ public class MyActivity extends AppCompatActivity {
 
                 case INITIALIZATION:
 
-                    if (augmentedImgs.containsKey("earth")) {
-                        AugmentedImg myAugmImg = augmentedImgs.get("earth");
+                    if (augmentedImgs.containsKey("aruco_1.jpg")) {
+                        AugmentedImg myAugmImg = augmentedImgs.get("aruco_1.jpg");
                         assert myAugmImg != null;
                         Log.i(TAG, "Camera pose: " +currFrame.getCamera().getPose().toString());
                         Log.i(TAG, "Target pose: "+myAugmImg.getPose().toString());
@@ -241,8 +242,8 @@ public class MyActivity extends AppCompatActivity {
 
                 case CLOSELOOP:
 
-                    if (augmentedImgs.containsKey("earth")) {
-                        AugmentedImg myAugmImg = augmentedImgs.get("earth");
+                    if (augmentedImgs.containsKey("aruco_1")) {
+                        AugmentedImg myAugmImg = augmentedImgs.get("aruco_1");
                         assert myAugmImg != null;
                         if (mathUtilEnd.addCoord(myAugmImg.getCoordinates(), currFrame.getCamera().getPose().getRotationQuaternion())) {
                             myStatus = STATUS.START;
@@ -392,19 +393,35 @@ public class MyActivity extends AppCompatActivity {
      * @return boolean if an image database could be set-up
      */
     private boolean setupAugmentedImagesDb(Config config, Session session) {
-        AugmentedImageDatabase augmentedImageDatabase;
-        Bitmap bitmap = loadAugmentedImage("earth");
-        Bitmap bitmap2 = loadAugmentedImage("arucoMarker");
-        Bitmap bitmap3 = loadAugmentedImage("titlePage");
-        if ((bitmap == null) || (bitmap2 == null) || (bitmap3 == null)) {
-            return false;
+
+        InputStream inputStream = null;
+        try {
+            inputStream = getAssets().open("augmented_image_database.imgdb");
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        augmentedImageDatabase = new AugmentedImageDatabase(session);
+        try {
+            AugmentedImageDatabase augmentedImageDatabase = AugmentedImageDatabase.deserialize(session, inputStream);
+            config.setAugmentedImageDatabase(augmentedImageDatabase);
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
+        /*AugmentedImageDatabase augmentedImageDatabase = new AugmentedImageDatabase(session);;
+        Bitmap bitmap = loadAugmentedImage("earth");
+        if (bitmap == null){return false;}
         augmentedImageDatabase.addImage("earth", bitmap);
-        augmentedImageDatabase.addImage("arucoMarker", bitmap2);
-        augmentedImageDatabase.addImage("titlePage", bitmap3);
-        config.setAugmentedImageDatabase(augmentedImageDatabase);
-        return true;
+
+        int n_marker = 5;
+        String baseName = "aruco_";
+        // Load all aruco markers
+        for (int i=1; i<=n_marker; i++){
+            bitmap = loadAugmentedImage(baseName+i);
+            if (bitmap == null){return false;}
+            augmentedImageDatabase.addImage(baseName+i, bitmap);
+        }*/
+
     }
 
 
