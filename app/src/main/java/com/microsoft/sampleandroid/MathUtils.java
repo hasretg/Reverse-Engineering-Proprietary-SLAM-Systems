@@ -18,7 +18,6 @@ class MathUtils {
     Quaternion initQuater;
     float[] initQuaterStdDev;
     Quaternion offset_Quat = new Quaternion(0.707f, 0f, 0f, -0.707f).normalized();
-    //Quaternion imgToCam_quat = new Quaternion(0.5f, -0.5f, -0.5f, -0.5f);
     // Class pose with 3D coordinate and 4D quaternion
     private final float[][] pose;
     float rotMat[][] = new float[3][3];
@@ -126,8 +125,10 @@ class MathUtils {
      */
     float[] getRelativePose(float[] arrC, float[] arrQ) {
         Quaternion arrQuater = new Quaternion(arrQ[0], arrQ[1], arrQ[2], arrQ[3]);
-        Quaternion tmpQuat = Quaternion.multiply(Quaternion.multiply(offset_Quat.inverted(), initQuater), arrQuater);
+        Log.i("QUATERNION", "arrQuater: "+arrQuater.toString());
+        Quaternion tmpQuat = Quaternion.multiply(Quaternion.multiply(offset_Quat.inverted(), initQuater.inverted()), arrQuater);
 
+        Log.i("QUATERNION", "tmpQuat: "+tmpQuat.toString());
         float[] tmpCoord = {0, 0, 0};
         for (int i = 0; i < arrC.length; i++) {
             for (int j = 0; j < arrC.length; j++) {

@@ -2,7 +2,34 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="56900855-741a-4db9-b57b-00f51bb5dec2" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/../Java/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../Java/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../app/src/main/assets/augmented2_image_database-imglist.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../app/src/main/assets/augmented2_image_database.imgdb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../app/src/main/assets/marker_1.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../app/src/main/assets/marker_10.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../app/src/main/assets/marker_11.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../app/src/main/assets/marker_12.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../app/src/main/assets/marker_13.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../app/src/main/assets/marker_14.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../app/src/main/assets/marker_15.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../app/src/main/assets/marker_2.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../app/src/main/assets/marker_3.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../app/src/main/assets/marker_5.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../app/src/main/assets/marker_6.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../app/src/main/assets/marker_7.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../app/src/main/assets/marker_8.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../app/src/main/assets/marker_9.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/poseFiles/1553845507190.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/poseFiles/1553846443412.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/poseFiles/1553848673783.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/poseFiles/1553853480035.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/poseFiles/1553860760324.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/poseFiles/1553861180290.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/src/main/java/com/microsoft/sampleandroid/FileManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/../app/src/main/java/com/microsoft/sampleandroid/FileManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/src/main/java/com/microsoft/sampleandroid/MathUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/../app/src/main/java/com/microsoft/sampleandroid/MathUtils.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/src/main/java/com/microsoft/sampleandroid/MyActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/../app/src/main/java/com/microsoft/sampleandroid/MyActivity.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/src/main/java/com/microsoft/sampleandroid/Shared.java" beforeDir="false" afterPath="$PROJECT_DIR$/../app/src/main/java/com/microsoft/sampleandroid/Shared.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/src/main/res/layout/activity_shared.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../app/src/main/res/layout/activity_shared.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
@@ -79,29 +106,44 @@
         </counts>
       </usages-collector>
     </session>
+    <session id="-1177534079">
+      <usages-collector id="statistics.lifecycle.project">
+        <counts>
+          <entry key="project.open.time.5" value="1" />
+          <entry key="project.opened" value="1" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.file.extensions.edit">
+        <counts>
+          <entry key="py" value="333" />
+          <entry key="txt" value="4" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.file.types.edit">
+        <counts>
+          <entry key="PLAIN_TEXT" value="4" />
+          <entry key="Python" value="333" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.file.extensions.open">
+        <counts>
+          <entry key="txt" value="2" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.file.types.open">
+        <counts>
+          <entry key="PLAIN_TEXT" value="2" />
+        </counts>
+      </usages-collector>
+    </session>
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/test2.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="420">
-              <caret line="33" column="12" selection-start-line="33" selection-start-column="12" selection-end-line="33" selection-end-column="12" />
-              <folding>
-                <element signature="e#0#10#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-898">
-              <caret line="81" column="35" selection-start-line="81" selection-start-column="35" selection-end-line="81" selection-end-column="35" />
-              <folding>
-                <element signature="e#0#10#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="30">
+              <caret line="9" column="36" selection-start-line="9" selection-start-column="36" selection-end-line="9" selection-end-column="36" />
             </state>
           </provider>
         </entry>
@@ -121,7 +163,9 @@
       <list>
         <option value="$PROJECT_DIR$/test.py" />
         <option value="$PROJECT_DIR$/test2.py" />
+        <option value="$PROJECT_DIR$/poseFiles/1553848673783.txt" />
         <option value="$PROJECT_DIR$/main.py" />
+        <option value="$PROJECT_DIR$/poseFiles/1553861180290.txt" />
       </list>
     </option>
   </component>
@@ -136,6 +180,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -152,18 +197,17 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
   </component>
   <component name="RecentsManager">
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$" />
-    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/poseFiles" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
     </key>
   </component>
   <component name="RunDashboard">
@@ -287,12 +331,12 @@
     <frame x="0" y="0" width="1280" height="800" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.11199365" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.1858618" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.110958904" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.29589042" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.39863014" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -337,37 +381,27 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/poseFiles/1552895775720.txt" />
-    <entry file="file://$PROJECT_DIR$/test.py">
+    <entry file="file://$PROJECT_DIR$/test.py" />
+    <entry file="file://$PROJECT_DIR$/poseFiles/1552942184290.txt" />
+    <entry file="file://$PROJECT_DIR$/test2.py" />
+    <entry file="file://$PROJECT_DIR$/poseFiles/1553848673783.txt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="331">
-          <caret line="52" column="18" selection-start-line="52" selection-start-column="8" selection-end-line="52" selection-end-column="18" />
+        <state relative-caret-position="30">
+          <caret line="2" selection-start-line="2" selection-end-line="2" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/poseFiles/1552942184290.txt">
+    <entry file="file://$PROJECT_DIR$/poseFiles/1553861180290.txt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="15">
-          <caret line="1" column="64" lean-forward="true" selection-start-column="64" selection-end-line="1" selection-end-column="64" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/test2.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="420">
-          <caret line="33" column="12" selection-start-line="33" selection-start-column="12" selection-end-line="33" selection-end-column="12" />
-          <folding>
-            <element signature="e#0#10#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="84">
+          <caret line="227" column="122" selection-start-line="227" selection-start-column="122" selection-end-line="227" selection-end-column="122" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-898">
-          <caret line="81" column="35" selection-start-line="81" selection-start-column="35" selection-end-line="81" selection-end-column="35" />
-          <folding>
-            <element signature="e#0#10#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="30">
+          <caret line="9" column="36" selection-start-line="9" selection-start-column="36" selection-end-line="9" selection-end-column="36" />
         </state>
       </provider>
     </entry>

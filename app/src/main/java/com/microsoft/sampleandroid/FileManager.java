@@ -23,7 +23,7 @@ final class FileManager {
     private FileOutputStream myFileOutputStream;
     private OutputStreamWriter myOutputStreamWriter;
 
-    FileManager(){
+    FileManager(String appType){
         String STORAGE_PATH = Environment.getExternalStorageDirectory()
                 + File.separator + "SLAM_data";
         parentFolder = new File(STORAGE_PATH);
@@ -37,11 +37,17 @@ final class FileManager {
             File poseFile = new File(poseFolder, fileId + ".txt");
             myFileOutputStream = new FileOutputStream(poseFile);
             myOutputStreamWriter = new OutputStreamWriter(myFileOutputStream);
-            poseTextFile += "time,sizeX,sizeY,p_x,p_y,f_x,f_y,pos_X,pos_Y,pos_Z,q_x,q_y,q_z,q_w," +
-                    "imgID,img_x,img_y,img_z,img_qx,img_qy,img_qz,img_qw\n";
-
         } catch (FileNotFoundException e) {
             e.printStackTrace();
+        }
+
+        if (appType == "LOCAL") {
+            poseTextFile += "time,sizeX,sizeY,p_x,p_y,f_x,f_y,pos_X,pos_Y,pos_Z,q_x,q_y,q_z,q_w," +
+                    "marker_ID,marker_x,marker_y,marker_z,marker_qx,marker_qy,marker_qz,marker_qw," +
+                    "marker_ID,marker_x,marker_y,marker_z,marker_qx,marker_qy,marker_qz,marker_qw," +
+                    "marker_ID,marker_x,marker_y,marker_z,marker_qx,marker_qy,marker_qz,marker_qw,\n";
+        }else if(appType.equals("CLOUD")){
+            poseTextFile += "anchor_ID,anchor_x,anchor_y,anchor_z,anchor_qx,anchor_qy,anchor_qz,anchor_qw,\n";
         }
     }
 

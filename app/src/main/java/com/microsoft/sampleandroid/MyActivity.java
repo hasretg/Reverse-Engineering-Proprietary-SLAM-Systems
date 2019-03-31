@@ -53,7 +53,6 @@ public class MyActivity extends AppCompatActivity {
 
     private Button initButton;
     private Button captureButton;
-    private Button backButton;
     private boolean captBtnClicked = false;
     private TextView myStatusTxt;
     private TextView myinfoTxt;
@@ -96,7 +95,6 @@ public class MyActivity extends AppCompatActivity {
 
         captureButton = findViewById(R.id.captureButton);
         captureButton.setVisibility(View.GONE);
-        //ackButton.findViewById(R.id.mainMenu);
         myinfoTxt = findViewById(R.id.infoText);
         myinfoTxt.setVisibility(View.GONE);
         initButton = findViewById(R.id.initButton);
@@ -143,7 +141,7 @@ public class MyActivity extends AppCompatActivity {
                 captBtnClicked = !captBtnClicked;
 
                 if (captBtnClicked) {
-                    myFileManager = new FileManager();
+                    myFileManager = new FileManager("LOCAL");
                     captureButton.setText("STOP Capture Pose");
                 } else {
                     String poseInfo = myFileManager.savePose();
@@ -221,8 +219,8 @@ public class MyActivity extends AppCompatActivity {
 
                 case INITIALIZATION:
 
-                    if (augmentedImgs.containsKey("aruco_1.jpg")) {
-                        AugmentedImg myAugmImg = augmentedImgs.get("aruco_1.jpg");
+                    if (augmentedImgs.containsKey("marker_8.jpg")) {
+                        AugmentedImg myAugmImg = augmentedImgs.get("marker_8.jpg");
                         assert myAugmImg != null;
                         Log.i(TAG, "Camera pose: " +currFrame.getCamera().getPose().toString());
                         Log.i(TAG, "Target pose: "+myAugmImg.getPose().toString());
@@ -242,8 +240,8 @@ public class MyActivity extends AppCompatActivity {
 
                 case CLOSELOOP:
 
-                    if (augmentedImgs.containsKey("aruco_1")) {
-                        AugmentedImg myAugmImg = augmentedImgs.get("aruco_1");
+                    if (augmentedImgs.containsKey("marker_8.jpg")) {
+                        AugmentedImg myAugmImg = augmentedImgs.get("marker_8.jpg");
                         assert myAugmImg != null;
                         if (mathUtilEnd.addCoord(myAugmImg.getCoordinates(), currFrame.getCamera().getPose().getRotationQuaternion())) {
                             myStatus = STATUS.START;
@@ -332,7 +330,6 @@ public class MyActivity extends AppCompatActivity {
                     case INSTALLED:
                         // Success, create the AR session.
                         mySession = new Session(this);
-                        //mCloudSession = new CloudSpatialAnchorSession();
                         Log.v(TAG, "Ar session installed");
                         sessionCreated = true;
                         break;
@@ -396,7 +393,7 @@ public class MyActivity extends AppCompatActivity {
 
         InputStream inputStream = null;
         try {
-            inputStream = getAssets().open("augmented_image_database.imgdb");
+            inputStream = getAssets().open("augmented2_image_database.imgdb");
         } catch (IOException e) {
             e.printStackTrace();
         }

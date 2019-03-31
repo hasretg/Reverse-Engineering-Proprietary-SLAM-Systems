@@ -7,7 +7,7 @@ from pyquaternion import Quaternion
 import math
 from collections import defaultdict
 
-FILE_NAME = 'poseFiles/1553159282171.txt'
+FILE_NAME = 'poseFiles/1553861180290.txt'
 
 
 def main():
@@ -79,18 +79,25 @@ def main():
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
     ax.scatter3D(coords[:, 0], coords[:, 1], coords[:, 2], c=timestamp, cmap='cool')  # Plot position of each frame
-    for i in range(0, len(quats), 10):
+
+    ref_pt = np.eye(3,  dtype=int)
+    B = np.matmul(ref_pt, get_euler_rotation(quats[0,:]))
+    B = np.linalg.inv(get_euler_rotation(quats[0, :]))
+    for i in range(0, len(quats), 30):
         # Plot orientation of each camera frame
         mat_euler = get_euler_rotation(quats[i, :])
         # Plot axis of camera in 3D
         scale = 1
+        #mat_euler = np.matmul(mat_euler, np.linalg.inv(B))
 
-        ax.plot([coords[i, 0], coords[i, 0] - mat_euler[0, 0] * scale], [coords[i, 1], coords[i, 1] - mat_euler[1, 0]
-                * scale], [coords[i, 2], coords[i, 2] - mat_euler[2, 0] * scale], c='r')
-        ax.plot([coords[i, 0], coords[i, 0] - mat_euler[0, 1] * scale], [coords[i, 1], coords[i, 1] - mat_euler[1, 1]
-                * scale], [coords[i, 2], coords[i, 2] - mat_euler[2, 1] * scale], c='g')
-        ax.plot([coords[i, 0], coords[i, 0] - mat_euler[0, 2] * scale], [coords[i, 1], coords[i, 1] - mat_euler[1, 2]
-                * scale], [coords[i, 2], coords[i, 2] - mat_euler[2, 2] * scale], c='b')
+        print(quats[i, :])
+        print(mat_euler)
+        ax.plot([coords[i, 0], coords[i, 0] + mat_euler[0, 0] * scale], [coords[i, 1], coords[i, 1] + mat_euler[1, 0]
+                * scale], [coords[i, 2], coords[i, 2] + mat_euler[2, 0] * scale], c='r')
+        ax.plot([coords[i, 0], coords[i, 0] + mat_euler[0, 1] * scale], [coords[i, 1], coords[i, 1] + mat_euler[1, 1]
+                * scale], [coords[i, 2], coords[i, 2] + mat_euler[2, 1] * scale], c='g')
+        ax.plot([coords[i, 0], coords[i, 0] + mat_euler[0, 2] * scale], [coords[i, 1], coords[i, 1] + mat_euler[1, 2]
+                * scale], [coords[i, 2], coords[i, 2] + mat_euler[2, 2] * scale], c='b')
         #plot_orientation(mat_euler, coords[i, :], ax)
 
     for marker in m_dict:
@@ -100,7 +107,7 @@ def main():
             mat_euler = get_euler_rotation([float(info['qx']), float(info['qy']), float(info['qz']), float(info['qw'])])
 
 
-            plot_orientation(mat_euler, [float(info['px']), float(info['py']), float(info['pz'])], ax, scale=2)
+            plot_orientation(mat_euler, [float(info['px']), float(info['py']), float(info['pz'])], ax, scale=0.3)
 
 
     max = np.max(coords, axis=0)
