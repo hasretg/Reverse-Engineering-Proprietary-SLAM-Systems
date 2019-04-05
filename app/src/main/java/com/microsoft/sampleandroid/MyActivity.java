@@ -114,10 +114,12 @@ public class MyActivity extends AppCompatActivity {
 
         /*
          * When plane in AR recognized and taped, create a sphere at the taped location
-         */
+
         myArFragment.setOnTapArPlaneListener((hitResult, plane, motionEvent) -> {
             myArFragment.addAnchorNodeToScene(hitResult.createAnchor(), myRenderable);
         });
+
+        */
 
         /*
          * Set to initialization mode when button is clicked and current status is START
@@ -170,7 +172,7 @@ public class MyActivity extends AppCompatActivity {
             Collection<AugmentedImage> augmentedImages = currFrame.getUpdatedTrackables(AugmentedImage.class);
             for (AugmentedImage augmentedImage : augmentedImages) {
                 if (augmentedImage.getTrackingState() == TrackingState.TRACKING) {
-                    Log.i("TAG111", "Name: "+augmentedImage.getName());
+                    Log.i(TAG, "Name: "+augmentedImage.getName());
                     augmentedImgs.put(augmentedImage.getName(), new AugmentedImg(augmentedImage));
                 }
             }
@@ -198,6 +200,8 @@ public class MyActivity extends AppCompatActivity {
                         while (it.hasNext()) {
                             Map.Entry pair = (Map.Entry) it.next();
                             String myKey = (String) pair.getKey();
+                            myStatusTxt.setText("Found: "+myKey);
+
                             AugmentedImg myImg = (AugmentedImg) pair.getValue();
                             myFileManager.writePosterInfo(myKey, myImg.getSize(),
                                     mathUtilStart.getRelativePose(myImg.getCoordinates(), myImg.getQuaternion()));
@@ -219,8 +223,8 @@ public class MyActivity extends AppCompatActivity {
 
                 case INITIALIZATION:
 
-                    if (augmentedImgs.containsKey("marker_8.jpg")) {
-                        AugmentedImg myAugmImg = augmentedImgs.get("marker_8.jpg");
+                    if (augmentedImgs.containsKey("marker_1.jpg")) {
+                        AugmentedImg myAugmImg = augmentedImgs.get("marker_1.jpg");
                         assert myAugmImg != null;
                         Log.i(TAG, "Camera pose: " +currFrame.getCamera().getPose().toString());
                         Log.i(TAG, "Target pose: "+myAugmImg.getPose().toString());
@@ -232,7 +236,7 @@ public class MyActivity extends AppCompatActivity {
                             myStatus = STATUS.TRACKING;
                             myStatusTxt.setText("STATUS: tracking");
                             captureButton.setVisibility(View.VISIBLE);
-                            myArFragment.addTrackableNodeToScene(myAugmImg.getAugmentedImage().createAnchor(myAugmImg.getPose()), myRenderable);
+                            //myArFragment.addTrackableNodeToScene(myAugmImg.getAugmentedImage().createAnchor(myAugmImg.getPose()), myRenderable);
                             //shouldAddModel = false;
                         }
                     }
@@ -240,8 +244,8 @@ public class MyActivity extends AppCompatActivity {
 
                 case CLOSELOOP:
 
-                    if (augmentedImgs.containsKey("marker_8.jpg")) {
-                        AugmentedImg myAugmImg = augmentedImgs.get("marker_8.jpg");
+                    if (augmentedImgs.containsKey("marker_1.jpg")) {
+                        AugmentedImg myAugmImg = augmentedImgs.get("marker_1.jpg");
                         assert myAugmImg != null;
                         if (mathUtilEnd.addCoord(myAugmImg.getCoordinates(), currFrame.getCamera().getPose().getRotationQuaternion())) {
                             myStatus = STATUS.START;
@@ -285,7 +289,7 @@ public class MyActivity extends AppCompatActivity {
 
         // New instance of class MathUtils. Set max iteration number for the initialization to 10
         mathUtilStart = new MathUtils(10);
-        mathUtilEnd = new MathUtils(10);
+        mathUtilEnd = new MathUtils(1);
 
     }
 

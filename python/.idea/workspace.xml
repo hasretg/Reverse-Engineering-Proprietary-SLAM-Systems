@@ -2,36 +2,63 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="56900855-741a-4db9-b57b-00f51bb5dec2" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/../app/src/main/assets/augmented2_image_database-imglist.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../app/src/main/assets/augmented2_image_database.imgdb" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../app/src/main/assets/marker_1.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../app/src/main/assets/marker_10.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../app/src/main/assets/marker_11.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../app/src/main/assets/marker_12.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../app/src/main/assets/marker_13.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../app/src/main/assets/marker_14.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../app/src/main/assets/marker_15.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../app/src/main/assets/marker_2.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../app/src/main/assets/marker_3.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../app/src/main/assets/marker_5.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../app/src/main/assets/marker_6.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../app/src/main/assets/marker_7.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../app/src/main/assets/marker_8.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../app/src/main/assets/marker_9.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/poseFiles/1553845507190.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/poseFiles/1553846443412.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/poseFiles/1553848673783.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/poseFiles/1553853480035.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/poseFiles/1553860760324.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/poseFiles/1553861180290.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cloud_anchor.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ground_truth_markers.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ground_truth_markers_last.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/poseFiles/1554138116678.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/poseFiles/1554138226384.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/poseFiles/1554138324954.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/poseFiles/1554138432223.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/poseFiles/1554138537094.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/poseFiles/1554138625045.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/poseFiles/1554138721223.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/poseFiles/1554138818012.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/poseFiles/1554138913884.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/poseFiles/1554139018983.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/poseFiles/1554139122188.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/poseFiles/1554139236939.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/poseFiles/1554139345938.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/poseFiles/1554139470665.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/poseFolder_long_track/1554460073231.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/poseFolder_no_poster/1554123306933.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/poseFolder_no_poster/1554123803105.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/poseFolder_no_poster/1554123982034.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/poseFolder_no_poster/1554125889733.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/poseFolder_no_poster/1554125988265.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/poseFolder_no_poster/1554126063030.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/poseFolder_no_poster/1554126145291.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/poseFolder_no_poster/1554126315934.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/poseFolder_no_poster/1554126393295.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/poseFolder_no_poster/1554126472065.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/poseFolder_no_poster/1554126550184.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/poseFolder_no_poster/1554126634624.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/poseFolder_no_poster/1554126734010.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/poseFolder_no_poster/1554126916183.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/poseFolder_no_poster/1554126997411.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/poseFolder_no_poster/1554127747652.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/poseFolder_no_poster/1554127818604.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/poseFolder_no_poster/1554127891866.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/poseFolder_no_poster/loopClosing_Result.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pose_cloud_anchor/1554469963224.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pose_cloud_anchor/1554470027995.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pose_cloud_anchor/1554470076582.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pose_cloud_anchor/ground_truth_cloud_anchor.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../app/src/main/assets/augmented2_image_database-imglist.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../app/src/main/assets/augmented2_image_database-imglist.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../app/src/main/java/com/microsoft/sampleandroid/FileManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/../app/src/main/java/com/microsoft/sampleandroid/FileManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../app/src/main/java/com/microsoft/sampleandroid/MathUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/../app/src/main/java/com/microsoft/sampleandroid/MathUtils.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../app/src/main/java/com/microsoft/sampleandroid/MyActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/../app/src/main/java/com/microsoft/sampleandroid/MyActivity.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../app/src/main/java/com/microsoft/sampleandroid/Shared.java" beforeDir="false" afterPath="$PROJECT_DIR$/../app/src/main/java/com/microsoft/sampleandroid/Shared.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../app/src/main/res/layout/activity_shared.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../app/src/main/res/layout/activity_shared.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/poseFiles/1552401569521.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/poseFiles/1552485675727.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/poseFiles/1552486217328.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/poseFiles/1552948143677.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/poseFiles/1553845507190.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/poseFiles/1553846443412.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/poseFiles/1553848673783.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/poseFiles/1553853480035.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/poseFiles/1553860760324.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/poseFiles/1553861180290.txt" beforeDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -109,50 +136,111 @@
     <session id="-1177534079">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
-          <entry key="project.open.time.5" value="1" />
-          <entry key="project.opened" value="1" />
+          <entry key="project.closed" value="3" />
+          <entry key="project.open.time.11" value="1" />
+          <entry key="project.open.time.5" value="2" />
+          <entry key="project.open.time.6" value="1" />
+          <entry key="project.opened" value="4" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="py" value="333" />
-          <entry key="txt" value="4" />
+          <entry key="py" value="1842" />
+          <entry key="txt" value="14" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="PLAIN_TEXT" value="4" />
-          <entry key="Python" value="333" />
+          <entry key="PLAIN_TEXT" value="14" />
+          <entry key="Python" value="1842" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
-          <entry key="txt" value="2" />
+          <entry key="py" value="2" />
+          <entry key="txt" value="34" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
-          <entry key="PLAIN_TEXT" value="2" />
+          <entry key="PLAIN_TEXT" value="34" />
+          <entry key="Python" value="2" />
         </counts>
       </usages-collector>
     </session>
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="30">
-              <caret line="9" column="36" selection-start-line="9" selection-start-column="36" selection-end-line="9" selection-end-column="36" />
+            <state relative-caret-position="195">
+              <caret line="13" selection-start-line="13" selection-end-line="13" />
+              <folding>
+                <element signature="e#0#10#0" expanded="true" />
+                <element signature="e#5946#6030#0" />
+                <element signature="e#6113#6275#0" />
+                <element signature="e#6466#6855#0" />
+                <element signature="e#6947#7377#0" />
+                <element signature="e#7435#7942#0" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/cloud_anchor.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="305">
+              <caret line="33" column="38" selection-start-line="33" selection-start-column="38" selection-end-line="33" selection-end-column="38" />
+              <folding>
+                <element signature="e#0#10#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/pose_cloud_anchor/1554469963224.txt">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="15">
+              <caret line="1" column="49" selection-start-line="1" selection-start-column="49" selection-end-line="1" selection-end-column="49" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/pose_cloud_anchor/1554470027995.txt">
+          <provider selected="true" editor-type-id="text-editor" />
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/pose_cloud_anchor/ground_truth_cloud_anchor.txt">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="15">
+              <caret line="1" column="6" selection-start-line="1" selection-start-column="6" selection-end-line="1" selection-end-column="6" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/pose_cloud_anchor/1554470076582.txt">
+          <provider selected="true" editor-type-id="text-editor" />
+        </entry>
+      </file>
     </leaf>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
       <find>euler_rot</find>
+      <find>marker</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -164,15 +252,22 @@
         <option value="$PROJECT_DIR$/test.py" />
         <option value="$PROJECT_DIR$/test2.py" />
         <option value="$PROJECT_DIR$/poseFiles/1553848673783.txt" />
-        <option value="$PROJECT_DIR$/main.py" />
         <option value="$PROJECT_DIR$/poseFiles/1553861180290.txt" />
+        <option value="$PROJECT_DIR$/poseFiles/1554111647723.txt" />
+        <option value="$PROJECT_DIR$/poseFiles/1554123306933.txt" />
+        <option value="$PROJECT_DIR$/ground_truth_markers.txt" />
+        <option value="$PROJECT_DIR$/poseFolder_long_track/1554448641381.txt" />
+        <option value="$PROJECT_DIR$/poseFolder_long_track/1554460073231.txt" />
+        <option value="$PROJECT_DIR$/pose_cloud_anchor/ground_truth_cloud_anchor.txt" />
+        <option value="$PROJECT_DIR$/main.py" />
+        <option value="$PROJECT_DIR$/cloud_anchor.py" />
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" fullScreen="true">
-    <option name="x" value="650" />
-    <option name="width" value="630" />
-    <option name="height" value="800" />
+  <component name="ProjectFrameBounds">
+    <option name="y" value="23" />
+    <option name="width" value="1280" />
+    <option name="height" value="737" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
@@ -180,7 +275,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -191,12 +285,13 @@
             <path>
               <item name="python" type="b2602c69:ProjectViewProjectNode" />
               <item name="python" type="462c0819:PsiDirectoryNode" />
-              <item name="poseFiles" type="462c0819:PsiDirectoryNode" />
+              <item name="pose_cloud_anchor" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -208,6 +303,8 @@
     </key>
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$" />
+      <recent name="$PROJECT_DIR$/poseFolder_long_track" />
+      <recent name="$PROJECT_DIR$/poseFiles" />
     </key>
   </component>
   <component name="RunDashboard">
@@ -222,7 +319,28 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.main">
+  <component name="RunManager" selected="Python.cloud_anchor">
+    <configuration name="cloud_anchor" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="python" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/cloud_anchor.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="main" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="python" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -290,9 +408,11 @@
       <item itemvalue="Python.main" />
       <item itemvalue="Python.test" />
       <item itemvalue="Python.test2" />
+      <item itemvalue="Python.cloud_anchor" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.cloud_anchor" />
         <item itemvalue="Python.main" />
         <item itemvalue="Python.test2" />
         <item itemvalue="Python.test" />
@@ -328,15 +448,15 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="0" width="1280" height="800" extended-state="0" />
+    <frame x="0" y="23" width="1280" height="737" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.1858618" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
-      <window_info anchor="bottom" id="Find" order="1" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.29589042" />
+      <window_info anchor="bottom" id="Find" order="1" weight="0.32876712" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.34573644" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.39863014" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -373,37 +493,134 @@
     <entry file="file://$PROJECT_DIR$/poseFiles/1552395339921.txt" />
     <entry file="file://$PROJECT_DIR$/poseFiles/1552396638050.txt" />
     <entry file="file://$PROJECT_DIR$/poseFiles/1552397176713.txt" />
-    <entry file="file://$PROJECT_DIR$/poseFiles/1552486217328.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="15">
-          <caret line="1" column="93" lean-forward="true" selection-start-line="1" selection-start-column="93" selection-end-line="1" selection-end-column="93" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/poseFiles/1552486217328.txt" />
     <entry file="file://$PROJECT_DIR$/poseFiles/1552895775720.txt" />
     <entry file="file://$PROJECT_DIR$/test.py" />
     <entry file="file://$PROJECT_DIR$/poseFiles/1552942184290.txt" />
     <entry file="file://$PROJECT_DIR$/test2.py" />
-    <entry file="file://$PROJECT_DIR$/poseFiles/1553848673783.txt">
+    <entry file="file://$PROJECT_DIR$/poseFiles/1553848673783.txt" />
+    <entry file="file://$PROJECT_DIR$/poseFiles/1553861180290.txt" />
+    <entry file="file://$PROJECT_DIR$/poseFiles/1554108931401.txt" />
+    <entry file="file://$PROJECT_DIR$/poseFiles/1554111647723.txt" />
+    <entry file="file://$PROJECT_DIR$/poseFiles/1554113310729.txt" />
+    <entry file="file://$PROJECT_DIR$/poseFiles/1554114975047.txt" />
+    <entry file="file://$PROJECT_DIR$/poseFiles/1554120471902.txt" />
+    <entry file="file://$PROJECT_DIR$/poseFiles/1554123306933.txt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="30">
-          <caret line="2" selection-start-line="2" selection-end-line="2" />
+        <state relative-caret-position="-7393">
+          <caret line="191" column="127" selection-start-line="191" selection-start-column="121" selection-end-line="191" selection-end-column="127" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/poseFiles/1553861180290.txt">
+    <entry file="file://$PROJECT_DIR$/poseFiles/1554123803105.txt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="84">
-          <caret line="227" column="122" selection-start-line="227" selection-start-column="122" selection-end-line="227" selection-end-column="122" />
+        <state relative-caret-position="-12450" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/poseFiles/1554123982034.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="6554">
+          <caret line="745" column="129" selection-start-line="745" selection-start-column="129" selection-end-line="745" selection-end-column="129" />
         </state>
       </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/poseFiles/1554125889733.txt">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/poseFiles/1554138116678.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="142">
+          <caret line="12" column="136" lean-forward="true" selection-start-line="12" selection-start-column="124" selection-end-line="12" selection-end-column="136" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ground_truth_markers_last.txt">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ground_truth_markers.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="150">
+          <caret line="10" column="37" selection-start-line="10" selection-start-column="37" selection-end-line="10" selection-end-column="37" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/poseFolder_no_poster/1554123306933.txt">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/poseFolder_long_track/1554448641381.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="238">
+          <caret line="815" column="119" lean-forward="true" selection-start-line="815" selection-start-column="119" selection-end-line="815" selection-end-column="119" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/poseFolder_long_track/1554448511007.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-12278" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/poseFolder_long_track/1554454370261.txt">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/poseFolder_long_track/1554455093088.txt">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/poseFolder_long_track/1554455387832.txt">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/poseFolder_long_track/1554456554128.txt">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/poseFolder_long_track/1554456783293.txt">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/poseFolder_long_track/1554460073231.txt">
+      <provider selected="true" editor-type-id="text-editor" />
     </entry>
     <entry file="file://$PROJECT_DIR$/main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="30">
-          <caret line="9" column="36" selection-start-line="9" selection-start-column="36" selection-end-line="9" selection-end-column="36" />
+        <state relative-caret-position="195">
+          <caret line="13" selection-start-line="13" selection-end-line="13" />
+          <folding>
+            <element signature="e#0#10#0" expanded="true" />
+            <element signature="e#5946#6030#0" />
+            <element signature="e#6113#6275#0" />
+            <element signature="e#6466#6855#0" />
+            <element signature="e#6947#7377#0" />
+            <element signature="e#7435#7942#0" />
+          </folding>
         </state>
       </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cloud_anchor.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="305">
+          <caret line="33" column="38" selection-start-line="33" selection-start-column="38" selection-end-line="33" selection-end-column="38" />
+          <folding>
+            <element signature="e#0#10#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pose_cloud_anchor/1554469963224.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="15">
+          <caret line="1" column="49" selection-start-line="1" selection-start-column="49" selection-end-line="1" selection-end-column="49" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pose_cloud_anchor/1554470027995.txt">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pose_cloud_anchor/ground_truth_cloud_anchor.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="15">
+          <caret line="1" column="6" selection-start-line="1" selection-start-column="6" selection-end-line="1" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pose_cloud_anchor/1554470076582.txt">
+      <provider selected="true" editor-type-id="text-editor" />
     </entry>
   </component>
 </project>

@@ -1,0 +1,7 @@
+id,d_x,d_y,d_z,d_qx,d_qy,d_qz,d_qz,d_qw
+1554122927078,2.2273674,-0.2003462,-0.90304637,Infinity,Infinity,Infinity,-0.76695436,-0.09843653,0.23032098,0.31631893,Infinity,Infinity,Infinity,Infinity
+1554123284250,-0.5278719,-0.096951164,4.4403305,Infinity,Infinity,Infinity,-0.8054105,0.5911179,0.04114662,0.085032165,Infinity,Infinity,Infinity,Infinity
+1554123477949,4.643857,-0.12577137,2.5651784,Infinity,Infinity,Infinity,-0.7549845,-0.9299789,0.09504769,0.0010284781,Infinity,Infinity,Infinity,Infinity
+1554123643056,-1.2289886,0.1950418,1.8623781,Infinity,Infinity,Infinity,-0.76131177,0.3454596,0.17612569,0.16002905,Infinity,Infinity,Infinity,Infinity
+1554123790015,-4.404512,0.030752212,2.6458137,Infinity,Infinity,Infinity,-0.73948467,0.64437217,0.19766828,-0.079814255,Infinity,Infinity,Infinity,Infinity
+1554123966039,-4.9425673,-0.051116753,1.4077022,Infinity,Infinity,Infinity,-0.7455163,0.68171364,0.18189687,-0.10594064,Infinity,Infinity,Infinity,Infinity

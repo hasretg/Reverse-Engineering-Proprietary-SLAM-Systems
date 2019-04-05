@@ -41,7 +41,7 @@ final class FileManager {
             e.printStackTrace();
         }
 
-        if (appType == "LOCAL") {
+        if (appType.equals("LOCAL")) {
             poseTextFile += "time,sizeX,sizeY,p_x,p_y,f_x,f_y,pos_X,pos_Y,pos_Z,q_x,q_y,q_z,q_w," +
                     "marker_ID,marker_x,marker_y,marker_z,marker_qx,marker_qy,marker_qz,marker_qw," +
                     "marker_ID,marker_x,marker_y,marker_z,marker_qx,marker_qy,marker_qz,marker_qw," +
@@ -71,13 +71,12 @@ final class FileManager {
         float[] d_q = start.getQuaternionDiff(end.initQuater);
         float[] d_std_c = start.getStdDeviationElem(end.initCoordStdDev);
         float[] d_std_q = start.getStdDeviationElem(end.initQuaterStdDev);
-        String txt_data = ""+id+","+MathUtils.round(d_c[0],3)+","+MathUtils.round(d_c[1],3)
-                +","+MathUtils.round(d_c[2],3)+","+MathUtils.round(d_std_c[0],4)
-                +","+MathUtils.round(d_std_c[1],4)+","+MathUtils.round(d_std_c[2],4)
-                +","+MathUtils.round(d_q[0],4)+","+MathUtils.round(d_q[1],4)
-                +","+MathUtils.round(d_q[2],4)+","+MathUtils.round(d_q[3],4)
-                +","+MathUtils.round(d_std_q[0],4)+","+MathUtils.round(d_std_q[1],4)
-                +","+MathUtils.round(d_std_q[2],4)+","+MathUtils.round(d_std_q[3],4);
+        String txt_data = ""+id+","+d_c[0]+","+d_c[1]+","+d_c[2]+","+d_std_c[0]+","+d_std_c[1]+","
+                +d_std_c[2]
+                +","+d_q[0]+","+d_q[1]
+                +","+d_q[2]+","+d_q[3]
+                +","+d_std_q[0]+","+d_std_q[1]
+                +","+d_std_q[2]+","+d_std_q[3];
 
         if(!loopClosingFile.exists()) {
             header = "id,d_x,d_y,d_z,d_qx,d_qy,d_qz,d_qz,d_qw\n";

@@ -80,7 +80,7 @@ public class Shared extends AzureSpatialAnchorsActivity
     private FileManager mFileManager;
     private boolean mUserRequestedInstall = true;
     private Session mySession;
-    private String markerName = "aruco_1";
+    private String markerName = "marker_1";
     private ArFragment mArFragment;
     Scene.OnUpdateListener onUpdateListener;
 
