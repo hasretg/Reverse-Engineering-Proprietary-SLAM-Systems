@@ -7,20 +7,23 @@ from pyquaternion import Quaternion
 import math
 from collections import defaultdict
 import os
-DIR_NAME = "poseFolder_long_track/"
-GROUND_TRUTH_FILE = "ground_truth_markers.txt"
+DIR_NAME = "slam_long_track/"
+GROUND_TRUTH_FILE = "ground_truth_markers_last.txt"
+MARKER_ID = [3, 4, 6, 7, 8, 9, 10, 11, 12, 13]
+gt_dict = {}
 
 
 def main():
-    gt_dict = {}
     with open(GROUND_TRUTH_FILE) as file:
         next(file)
         for line in file:
             fields = line.split(",")
             gt_dict[fields[0]] = [fields[1], fields[2], fields[3]]
 
+    all_data = np.empty(shape=(len(MARKER_ID), len(next(os.walk(DIR_NAME))[2]), 3))
+    all_data.fill(np.nan)
+    counter_files = 0
     for file in os.listdir(DIR_NAME):
-        print(file)
 
         coords, quats, timestamp = [], [], []
         m_dict = defaultdict(list)  # List of dictionaries with the markers and its information (e.g. pose)
@@ -41,11 +44,11 @@ def main():
 
                 nr_of_markers = (len(row)-15)//10  # Determine number of markers detected in a frame
                 for marker in range(nr_of_markers):
-                    m_dict[row[15 + 10*marker]].append({'sizeX': row[16 + 10*marker], 'sizeY': row[17 + 10*marker],
-                                                        'px': row[18 + 10*marker], 'py': row[19 + 10*marker],
-                                                        'pz': row[20 + 10*marker], 'qx': row[21 + 10*marker],
-                                                        'qy': row[22 + 10*marker], 'qz': row[23 + 10*marker],
-                                                        'qw': row[24 + 10*marker]})
+                    m_dict[row[15 + 10*marker]].append({'sizeX': float(row[16 + 10*marker]), 'sizeY': float(row[17 + 10*marker]),
+                                                        'px': float(row[18 + 10*marker]), 'py': float(row[19 + 10*marker]),
+                                                        'pz': float(row[20 + 10*marker]), 'qx': float(row[21 + 10*marker]),
+                                                        'qy': float(row[22 + 10*marker]), 'qz': float(row[23 + 10*marker]),
+                                                        'qw': float(row[24 + 10*marker])})
 
         print(f'{line_count} lines processed.')
         coords = np.asarray(coords, dtype=np.float)
@@ -55,9 +58,9 @@ def main():
         ###
         # In this section, we plot the information extracted from the textfile, including camera pose, marker pose
         ###
-        fig = plt.figure()
-        ax = fig.add_subplot(111, projection='3d')
-        ax.scatter3D(coords[:, 0], coords[:, 1], coords[:, 2], c=timestamp, cmap='cool')  # Plot position of each frame
+        #fig = plt.figure()
+        #ax = fig.add_subplot(111, projection='3d')
+        #ax.scatter3D(coords[:, 0], coords[:, 1], coords[:, 2], c=timestamp, cmap='cool')  # Plot position of each frame
 
         ref_pt = np.eye(3,  dtype=int)
         B = np.matmul(ref_pt, get_euler_rotation(quats[0,:]))
@@ -69,26 +72,35 @@ def main():
             scale = 1
 
             #mat_euler = np.matmul(mat_euler, np.linalg.inv(B))
-            ax.plot([coords[i, 0], coords[i, 0] + mat_euler[0, 0] * scale], [coords[i, 1], coords[i, 1] + mat_euler[1, 0]
-                    * scale], [coords[i, 2], coords[i, 2] + mat_euler[2, 0] * scale], c='r')
-            ax.plot([coords[i, 0], coords[i, 0] + mat_euler[0, 1] * scale], [coords[i, 1], coords[i, 1] + mat_euler[1, 1]
-                    * scale], [coords[i, 2], coords[i, 2] + mat_euler[2, 1] * scale], c='g')
-            ax.plot([coords[i, 0], coords[i, 0] + mat_euler[0, 2] * scale], [coords[i, 1], coords[i, 1] + mat_euler[1, 2]
-                    * scale], [coords[i, 2], coords[i, 2] + mat_euler[2, 2] * scale], c='b')
-            plot_orientation(mat_euler, coords[i, :], ax)
+            #ax.plot([coords[i, 0], coords[i, 0] + mat_euler[0, 0] * scale], [coords[i, 1], coords[i, 1] + mat_euler[1, 0]
+            #        * scale], [coords[i, 2], coords[i, 2] + mat_euler[2, 0] * scale], c='r')
+            #ax.plot([coords[i, 0], coords[i, 0] + mat_euler[0, 1] * scale], [coords[i, 1], coords[i, 1] + mat_euler[1, 1]
+            #        * scale], [coords[i, 2], coords[i, 2] + mat_euler[2, 1] * scale], c='g')
+            #ax.plot([coords[i, 0], coords[i, 0] + mat_euler[0, 2] * scale], [coords[i, 1], coords[i, 1] + mat_euler[1, 2]
+            #        * scale], [coords[i, 2], coords[i, 2] + mat_euler[2, 2] * scale], c='b')
+            #plot_orientation(mat_euler, coords[i, :], ax)
 
         initCoord = []
-        for elem in gt_dict:
-            ax.scatter3D(float(gt_dict[elem][0]), float(gt_dict[elem][1]), -float(gt_dict[elem][2]), c="blue", s=30)
+
+        #for elem in gt_dict:
+            #ax.scatter3D(float(gt_dict[elem][0]), float(gt_dict[elem][1]), -float(gt_dict[elem][2]), c="blue", s=30)
         for marker in m_dict:
 
             if marker == "marker_1.jpg":
-                initCoord = [m_dict[marker][0]['px'], m_dict[marker][0]['py'], m_dict[marker][0]['pz']]
-            for info in m_dict[marker]:
-                ax.scatter3D(float(info['px']) - float(initCoord[0]), float(info['py']) - float(initCoord[1]), float(info['pz']) - float(initCoord[2]), marker="D", c='black', s=30)
-                mat_euler = get_euler_rotation([float(info['qx']), float(info['qy']), float(info['qz']), float(info['qw'])])
+                initCoord = [float(m_dict[marker][0]['px']), float(m_dict[marker][0]['py']), float(m_dict[marker][0]['pz'])]
+            else:
+                ind = MARKER_ID.index(int(marker[7:-4]))
+                print(ind)
+                all_data[ind, counter_files, :] = [m_dict[marker][0]['px'] - initCoord[0],
+                                                                 m_dict[marker][0]['py'] - initCoord[1],
+                                                                 m_dict[marker][0]['pz'] - initCoord[2]]
 
-                plot_orientation(mat_euler, [float(info['px']), float(info['py']), float(info['pz'])], ax, scale=0.3)
+            for info in m_dict[marker]:
+                #ax.scatter3D(float(info['px']) - float(initCoord[0]), float(info['py']) - float(initCoord[1]), float(info['pz']) - float(initCoord[2]), marker="D", c='black', s=30)
+                mat_euler = get_euler_rotation([float(info['qx']), float(info['qy']), float(info['qz']), float(info['qw'])])
+                #plot_orientation(mat_euler, [float(info['px']), float(info['py']), float(info['pz'])], ax, scale=0.3)
+                print(marker)
+                break
 
         max = np.max(coords, axis=0)
         min = np.min(coords, axis=0)
@@ -98,12 +110,15 @@ def main():
         # ax.set_xlim(mid[0] - ext, mid[0] + ext)
         # ax.set_ylim(mid[1] - ext, mid[1] + ext)
         # ax.set_zlim(mid[2] - ext, mid[2] + ext)
-        ax.set_xlabel('X axis')
-        ax.set_ylabel('Y axis')
-        ax.set_zlabel('Z axis')
-        plt.axis('equal')
-        plt.show()
+        #ax.set_xlabel('X axis')
+        #ax.set_ylabel('Y axis')
+        #ax.set_zlabel('Z axis')
+        #plt.axis('equal')
+        #plt.show()
 
+        counter_files += 1
+
+    plot_accuracy(all_data)
 
 def get_euler_rotation(q):
     quad = Quaternion(q[3], q[0], q[1], q[2]).normalised
@@ -158,6 +173,34 @@ def plot_orientation(mat, coord, fig, scale=0.3):
     fig.plot([coord[0], coord[0] - mat[0, 2] * scale], [coord[1], coord[1] - mat[1, 2] * scale], [coord[2]
              , coord[2] - mat[2, 2] * scale], c='b')
 
+
+def plot_accuracy(dat):
+    std_dev = np.zeros(shape=((len(MARKER_ID), 3)), dtype=np.float)
+    diff_coord = np.zeros(shape=((len(MARKER_ID), 3)), dtype=np.float)
+    for i in range(dat.shape[0]):
+        try:
+            dat_mean = np.nanmean(dat[i, :, :], axis=0)
+        except:
+            print("An exception occurred")
+
+        tmp = [0, 0, 0]
+        for j in range(dat.shape[1]):
+            if not np.isnan(dat[i, j, :]).any():
+                tmp += np.power(np.subtract(dat[i, j, :], dat_mean), 2)
+
+        std_dev[i, :] = np.divide(np.sqrt(tmp), len(MARKER_ID)-1)
+        gt_pt = gt_dict.get("marker_"+str(MARKER_ID[i])+".jpg")
+        print(gt_pt)
+        print(dat_mean)
+        gt_pt = [float(gt_pt[0]), float(gt_pt[1]), -float(gt_pt[2])]
+        diff_coord[i, :] = np.abs(np.subtract(gt_pt, dat_mean))
+    std_dev = np.sqrt(np.sum(np.power(std_dev, 2), axis=1))
+    diff_coord = np.sqrt(np.sum(np.power(diff_coord, 2), axis=1))
+    plt.errorbar(MARKER_ID, diff_coord, std_dev, linestyle='None', marker='o', color='r')
+    plt.xlabel('Marker ID')
+    plt.ylabel('Point difference to ground truth in [m]')
+    plt.title(DIR_NAME[:-1])
+    plt.show()
 
 if __name__ == '__main__':
     main()

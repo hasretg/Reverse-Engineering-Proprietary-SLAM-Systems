@@ -1,0 +1,2 @@
+time,sizeX,sizeY,p_x,p_y,f_x,f_y,pos_X,pos_Y,pos_Z,q_x,q_y,q_z,q_w,marker_ID,marker_x,marker_y,marker_z,marker_qx,marker_qy,marker_qz,marker_qw,marker_ID,marker_x,marker_y,marker_z,marker_qx,marker_qy,marker_qz,marker_qw,marker_ID,marker_x,marker_y,marker_z,marker_qx,marker_qy,marker_qz,marker_qw,
+13793,1280,720,640.48975,339.145,991.9681,992.7318,0.367,-0.101,1.019,0.071122,-0.015000,-0.008042,-0.997322,img_1.jpg
