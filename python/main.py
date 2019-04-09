@@ -7,9 +7,9 @@ from pyquaternion import Quaternion
 import math
 from collections import defaultdict
 import os
-DIR_NAME = "slam_long_track/"
-GROUND_TRUTH_FILE = "ground_truth_markers_last.txt"
-MARKER_ID = [3, 4, 6, 7, 8, 9, 10, 11, 12, 13]
+DIR_NAME = "slam_fooling/"
+GROUND_TRUTH_FILE = "ground_truth_markers.txt"
+MARKER_ID = [3, 4, 6, 7, 8, 9, 10, 11, 12]
 gt_dict = {}
 
 
@@ -58,9 +58,9 @@ def main():
         ###
         # In this section, we plot the information extracted from the textfile, including camera pose, marker pose
         ###
-        #fig = plt.figure()
-        #ax = fig.add_subplot(111, projection='3d')
-        #ax.scatter3D(coords[:, 0], coords[:, 1], coords[:, 2], c=timestamp, cmap='cool')  # Plot position of each frame
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+        ax.scatter3D(coords[:, 0], coords[:, 1], coords[:, 2], c=timestamp, cmap='cool')  # Plot position of each frame
 
         ref_pt = np.eye(3,  dtype=int)
         B = np.matmul(ref_pt, get_euler_rotation(quats[0,:]))
@@ -72,18 +72,18 @@ def main():
             scale = 1
 
             #mat_euler = np.matmul(mat_euler, np.linalg.inv(B))
-            #ax.plot([coords[i, 0], coords[i, 0] + mat_euler[0, 0] * scale], [coords[i, 1], coords[i, 1] + mat_euler[1, 0]
-            #        * scale], [coords[i, 2], coords[i, 2] + mat_euler[2, 0] * scale], c='r')
-            #ax.plot([coords[i, 0], coords[i, 0] + mat_euler[0, 1] * scale], [coords[i, 1], coords[i, 1] + mat_euler[1, 1]
-            #        * scale], [coords[i, 2], coords[i, 2] + mat_euler[2, 1] * scale], c='g')
-            #ax.plot([coords[i, 0], coords[i, 0] + mat_euler[0, 2] * scale], [coords[i, 1], coords[i, 1] + mat_euler[1, 2]
-            #        * scale], [coords[i, 2], coords[i, 2] + mat_euler[2, 2] * scale], c='b')
-            #plot_orientation(mat_euler, coords[i, :], ax)
+            ax.plot([coords[i, 0], coords[i, 0] + mat_euler[0, 0] * scale], [coords[i, 1], coords[i, 1] + mat_euler[1, 0]
+                    * scale], [coords[i, 2], coords[i, 2] + mat_euler[2, 0] * scale], c='r')
+            ax.plot([coords[i, 0], coords[i, 0] + mat_euler[0, 1] * scale], [coords[i, 1], coords[i, 1] + mat_euler[1, 1]
+                    * scale], [coords[i, 2], coords[i, 2] + mat_euler[2, 1] * scale], c='g')
+            ax.plot([coords[i, 0], coords[i, 0] + mat_euler[0, 2] * scale], [coords[i, 1], coords[i, 1] + mat_euler[1, 2]
+                    * scale], [coords[i, 2], coords[i, 2] + mat_euler[2, 2] * scale], c='b')
+            plot_orientation(mat_euler, coords[i, :], ax)
 
         initCoord = []
 
-        #for elem in gt_dict:
-            #ax.scatter3D(float(gt_dict[elem][0]), float(gt_dict[elem][1]), -float(gt_dict[elem][2]), c="blue", s=30)
+        for elem in gt_dict:
+            ax.scatter3D(float(gt_dict[elem][0]), float(gt_dict[elem][1]), float(gt_dict[elem][2]), c="blue", s=30)
         for marker in m_dict:
 
             if marker == "marker_1.jpg":
@@ -96,9 +96,9 @@ def main():
                                                                  m_dict[marker][0]['pz'] - initCoord[2]]
 
             for info in m_dict[marker]:
-                #ax.scatter3D(float(info['px']) - float(initCoord[0]), float(info['py']) - float(initCoord[1]), float(info['pz']) - float(initCoord[2]), marker="D", c='black', s=30)
+                ax.scatter3D(float(info['px']) - float(initCoord[0]), float(info['py']) - float(initCoord[1]), float(info['pz']) - float(initCoord[2]), marker="D", c='black', s=30)
                 mat_euler = get_euler_rotation([float(info['qx']), float(info['qy']), float(info['qz']), float(info['qw'])])
-                #plot_orientation(mat_euler, [float(info['px']), float(info['py']), float(info['pz'])], ax, scale=0.3)
+                plot_orientation(mat_euler, [float(info['px']), float(info['py']), float(info['pz'])], ax, scale=0.3)
                 print(marker)
                 break
 
@@ -110,10 +110,10 @@ def main():
         # ax.set_xlim(mid[0] - ext, mid[0] + ext)
         # ax.set_ylim(mid[1] - ext, mid[1] + ext)
         # ax.set_zlim(mid[2] - ext, mid[2] + ext)
-        #ax.set_xlabel('X axis')
-        #ax.set_ylabel('Y axis')
-        #ax.set_zlabel('Z axis')
-        #plt.axis('equal')
+        ax.set_xlabel('X axis')
+        ax.set_ylabel('Y axis')
+        ax.set_zlabel('Z axis')
+        plt.axis('equal')
         #plt.show()
 
         counter_files += 1
@@ -192,10 +192,12 @@ def plot_accuracy(dat):
         gt_pt = gt_dict.get("marker_"+str(MARKER_ID[i])+".jpg")
         print(gt_pt)
         print(dat_mean)
-        gt_pt = [float(gt_pt[0]), float(gt_pt[1]), -float(gt_pt[2])]
+        gt_pt = [float(gt_pt[0]), float(gt_pt[1]), float(gt_pt[2])]
         diff_coord[i, :] = np.abs(np.subtract(gt_pt, dat_mean))
     std_dev = np.sqrt(np.sum(np.power(std_dev, 2), axis=1))
     diff_coord = np.sqrt(np.sum(np.power(diff_coord, 2), axis=1))
+
+    fig = plt.figure()
     plt.errorbar(MARKER_ID, diff_coord, std_dev, linestyle='None', marker='o', color='r')
     plt.xlabel('Marker ID')
     plt.ylabel('Point difference to ground truth in [m]')
