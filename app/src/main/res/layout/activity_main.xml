@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <TextView
+        android:id="@+id/sample_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+    android:id="@+id/arGo"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:onClick="onArClick"
+    android:text="Test for ARCore"
+    android:textAllCaps="false"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintHorizontal_bias="0.5"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@+id/sample_text" />
+
+    <Button
+        android:id="@+id/arBasicDemo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:onClick="onBasicDemoClick"
+        android:text="Frame Capturing Eval"
+        android:textAllCaps="false"
+        app:layout_constraintBottom_toTopOf="@+id/arSharedDemo"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/sample_text"
+        app:layout_constraintVertical_bias="0.877" />
+
+    <Button
+        android:id="@+id/arSharedDemo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="onSharedDemoClick"
+        android:text="Cloud Anchor Eval"
+        android:textAllCaps="false"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/sample_text" />
+</android.support.constraint.ConstraintLayout>
